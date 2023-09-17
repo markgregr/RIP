@@ -1,0 +1,125 @@
+/* Общие стили */
+body {
+    background-color: #333;
+    color: #fff;
+    font-family: 'Museo Slab', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    background-color: #444;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    
+}
+
+.full-width-container {
+    width: 100%; /* Ширина контейнера на всю страницу */
+    padding: 20px; /* Внутренние отступы для содержимого */
+    box-sizing: border-box; /* Учесть padding в общей ширине */
+    background-color: #333;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+.content-container {
+    text-align: center; /* Выравнивание содержимого по центру */
+    padding-left: 20%; /* Внутренние отступы для содержимого */
+    padding-right: 20%;
+    box-sizing: border-box; /* Учесть padding в общей ширине */
+}
+
+
+.page-title {
+    font-size: 24px;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+/* Стили для поля поиска багажа */
+.search-input {
+    background-color: #555;
+    color: #fff;
+    border: none;
+}
+.search-input-long:focus {
+    background-color: #333; /* Новый цвет фона при активации */
+    color: #fff; /* Цвет текста при активации */
+}
+
+
+/* Стили для карточек багажей */
+.card {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+.card-title {
+    font-size: 20px;
+    color: #fff;
+    margin-bottom: 0;
+}
+
+.card-text {
+    font-size: 16px;
+}
+
+
+/* Стили для навигационной панели Bootstrap (необязательно) */
+.navbar-dark .navbar-nav .nav-link {
+    color: #fff;
+}
+
+.navbar-dark .navbar-toggler-icon {
+    background-color: #fff;
+}
+
+.search-input-long {
+    background-color: #555;
+    color: #fff;
+    border: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    margin-left: 40px; /* Отступ справа */
+}
+
+
+.btn {
+    
+    text-decoration: none;
+    padding-top: 9px;
+    color: #a675b3;
+    text-align: center;
+    line-height: 20px;
+    display: block;
+    font: normal 17px arial;
+}
+.btn:not(.active) {
+    box-shadow: inset 0 1px 1px rgba(111, 55, 125, 0.8), inset 0 -1px 0px rgba(63, 59, 113, 0.2), 0 9px 16px 0 rgba(0, 0, 0, 0.3), 0 4px 3px 0 rgba(0, 0, 0, 0.3), 0 0 0 1px #150a1e;
+    background-image: linear-gradient(#3b2751, #271739);
+    text-shadow: 0 0 21px rgba(223, 206, 228, 0.5), 0 -1px 0 #311d47;
+}
+.btn:not(.active):hover,
+.btn:not(.active):focus {
+    transition: color 200ms linear, text-shadow 500ms linear;
+    color: #fff;
+    text-shadow: 0 0 21px rgba(223, 206, 228, 0.5), 0 0 10px rgba(223, 206, 228, 0.4), 0 0 2px #2a153c;
+    
+}
+.btn:not(:hover) {
+      transition: 0.6s;
+}
+
+
