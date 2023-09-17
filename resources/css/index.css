@@ -62,6 +62,10 @@ body {
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
     margin-bottom: 20px;
+    height: 500px;
+    display: flex;
+    text-align: center;
+
 }
 
 .card-title {
@@ -69,10 +73,14 @@ body {
     color: #fff;
     margin-bottom: 0;
 }
-
+.card-img-top {
+    max-height: 100%; 
+    width: auto;
+}
 .card-text {
     font-size: 16px;
 }
+
 
 
 /* Стили для навигационной панели Bootstrap (необязательно) */
