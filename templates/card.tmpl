@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о багаже</title>
+    <!-- Подключение Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/index.css">
+</head>
+<body>
+    <!-- Навигационная панель (navbar) -->
+    <nav class="navbar navbar-dark bg-dark">
+        <!-- Иконка слева -->
+        <a class="navbar-brand" href="/">
+            <img src="/images/BagTracker.png" width="30" height="30" class="d-inline-block align-top" alt="Icon">
+            BagTracker
+        </a>
+    </nav>
+
+    <!-- Контейнер с информацией о багаже -->
+    <div class="container mt-4">
+            <div class="card mb-4">
+                <img src="{{.Src}}" class="card-img-top" alt="Изображение багажа">
+                <div class="card-body">
+                    <h5 class="card-title">{{.Destination}}</h5>
+                    <p class="card-text">Вес: {{.Weight}} кг</p>
+                    <p class="card-text">Статус: {{.Status}}</p>
+                    <!-- Добавьте другие поля с информацией о багаже здесь -->
+                </div>
+            </div>
+    </div>
+</body>
+</html>

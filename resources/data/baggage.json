@@ -1,7 +1,7 @@
 [
   {
-    "baggage_id": 1,
-    "owner_name": "Иван Иванов",
+    "baggageID": 1,
+    "ownerName": "Иван Иванов",
     "destination": "Нью-Йорк",
     "weight": 20.5,
     "status": "зарегистрирован",
@@ -13,8 +13,8 @@
     "length": 70
   },
   {
-    "baggage_id": 2,
-    "owner_name": "Мария Петрова",
+    "baggageID": 2,
+    "ownerName": "Мария Петрова",
     "destination": "Лондон",
     "weight": 18.0,
     "status": "на борту",
@@ -26,8 +26,8 @@
     "length": 55
   },
   {
-    "baggage_id": 3,
-    "owner_name": "Алексей Смирнов",
+    "baggageID": 3,
+    "ownerName": "Алексей Смирнов",
     "destination": "Париж",
     "weight": 25.0,
     "status": "доставлен",
@@ -39,8 +39,8 @@
     "length": 90
   },
   {
-    "baggage_id": "4",
-    "owner_name": "Елена Козлова",
+    "baggageID": 4,
+    "ownerName": "Елена Козлова",
     "destination": "Токио",
     "weight": 19.5,
     "status": "зарегистрирован",
@@ -52,8 +52,8 @@
     "length": 65
   },
   {
-    "baggage_id": 5,
-    "owner_name": "Дмитрий Федоров",
+    "baggageID": 5,
+    "ownerName": "Дмитрий Федоров",
     "destination": "Дубай",
     "weight": 22.0,
     "status": "на борту",
@@ -65,8 +65,8 @@
     "length": 100
   },
   {
-    "baggage_id": 6,
-    "owner_name": "Ольга Сорокина",
+    "baggageID": 6,
+    "ownerName": "Ольга Сорокина",
     "destination": "Москва",
     "weight": 16.5,
     "status": "доставлен",
