@@ -1,82 +1,86 @@
 [
   {
     "baggageID": 1,
-    "ownerName": "Иван Иванов",
+    "ownerName": "Иванов Иван Иванович",
     "destination": "Нью-Йорк",
     "weight": 20.5,
     "status": "зарегистрирован",
     "src": "/images/1.png",
     "href": "/get/baggage/1",
-    "baggage_type": "средний чемодан",
+    "baggageType": "средний чемодан",
     "width": 45,
     "height": 25,
-    "length": 70
+    "length": 70,
+    "baggageCode": "#AB501"
   },
   {
     "baggageID": 2,
-    "ownerName": "Мария Петрова",
+    "ownerName": "Петрова Мария Ивановна",
     "destination": "Лондон",
     "weight": 18.0,
     "status": "на борту",
     "src": "/images/2.png",
     "href": "/get/baggage/2",
-    "baggage_type": "сумка",
+    "baggageType": "сумка",
     "width": 35,
     "height": 20,
-    "length": 55
+    "length": 55,
+    "baggageCode": "#BC502"
   },
   {
     "baggageID": 3,
-    "ownerName": "Алексей Смирнов",
+    "ownerName": "Смирнов Алексей Алексеевич",
     "destination": "Париж",
     "weight": 25.0,
     "status": "доставлен",
     "src": "/images/3.png",
     "href": "/get/baggage/3",
-    "baggage_type": "большой чемодан",
+    "baggageType": "большой чемодан",
     "width": 60,
     "height": 30,
-    "length": 90
+    "length": 90,
+    "baggageCode": "#CD503"
   },
   {
     "baggageID": 4,
-    "ownerName": "Елена Козлова",
+    "ownerName": "Козлова Елена Сергеевна",
     "destination": "Токио",
     "weight": 19.5,
     "status": "зарегистрирован",
     "src": "/images/4.png",
     "href": "/get/baggage/4",
-    "baggage_type": "средний чемодан",
+    "baggageType": "средний чемодан",
     "width": 40,
     "height": 22,
-    "length": 65
+    "length": 65,
+    "baggageCode": "#DE504"
   },
   {
     "baggageID": 5,
-    "ownerName": "Дмитрий Федоров",
+    "ownerName": "Федоров Дмитрий Андреевич",
     "destination": "Дубай",
     "weight": 22.0,
     "status": "на борту",
     "src": "/images/5.png",
     "href": "/get/baggage/5",
-    "baggage_type": "большой чемодан",
+    "baggageType": "большой чемодан",
     "width": 70,
     "height": 35,
-    "length": 100
+    "length": 100,
+    "baggageCode": "#EF505"
   },
   {
     "baggageID": 6,
-    "ownerName": "Ольга Сорокина",
+    "ownerName": "Сорокина Ольга Ивановна",
     "destination": "Москва",
     "weight": 16.5,
     "status": "доставлен",
     "src": "/images/6.png",
     "href": "/get/baggage/6",
-    "baggage_type": "сумка",
+    "baggageType": "сумка",
     "width": 30,
     "height": 18,
-    "length": 50
+    "length": 50,
+    "baggageCode": "#FG506"
   }
 ]
-  
-  

@@ -2,6 +2,7 @@ package api
 
 type Baggage struct {
 	BaggageID     int
+	BaggageCode   string
 	OwnerName     string
 	Destination   string
 	Weight        float64

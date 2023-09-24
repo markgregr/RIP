@@ -29,13 +29,14 @@ func StartServer() {
 		log.Println("Ошибка при декодировании JSON данных:", err)
 		return
 	}
-	log.Println(baggages)
+	
 	r := gin.Default()
 
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/css", "./resources/css")
 	r.Static("/data", "./resources/data")
 	r.Static("/images", "./resources/images")
+	r.Static("/fonts", "./resources/fonts")
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -49,7 +50,6 @@ func StartServer() {
 		for _, baggage := range baggages {
 			if strings.HasPrefix(strings.ToLower(baggage.Destination), strings.ToLower(searchQuery)) {
 				foundBaggages = append(foundBaggages, baggage)
-				log.Println("NICE!")
 			}
 		}
 		data := gin.H{
