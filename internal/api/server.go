@@ -14,24 +14,24 @@ import (
 
 func StartServer() {
 	log.Println("Server start up")
-
+	//Чтение baggage.json
 	file, err := os.Open("resources/data/baggage.json")
 	if err != nil {
 		log.Println("Ошибка при открытии JSON файла:", err)
 		return
 	}
 	defer file.Close()
-
+	//Декодирование JSON данных
 	var baggages []Baggage
-	log.Println(baggages)
 	decoder := json.NewDecoder(file)
 	if err := decoder.Decode(&baggages); err != nil {
 		log.Println("Ошибка при декодировании JSON данных:", err)
 		return
 	}
-	
+	//Инициализация gin
 	r := gin.Default()
 
+	//Настройка статических ресурсов
 	r.LoadHTMLGlob("templates/*")
 	r.Static("/css", "./resources/css")
 	r.Static("/data", "./resources/data")
@@ -43,7 +43,7 @@ func StartServer() {
 			"message": "pong",
 		})
 	})
-
+	//запрос на поиск
 	r.GET("/", func(c *gin.Context) {
 		searchQuery := c.DefaultQuery("q", "")
 		var foundBaggages []Baggage
@@ -57,7 +57,7 @@ func StartServer() {
 		}
 		c.HTML(http.StatusOK, "index.tmpl", data)
 	})
-
+	//Запрос на получения багажа по id
 	r.GET("/baggage/:id", func(c *gin.Context) {
 		id, err := strconv.Atoi(c.Param("id"))
 
