@@ -1,0 +1,19 @@
+version: "3.8" # версия вашего docker-compose
+services: # имеджи, которые запустятся по вашему желанию
+  db: # название моего имеджа
+    container_name: db
+    image: postgres:16 # скачает image postgres 16 версии
+    volumes: # часть настроек для хранения данных, пока для нас это не важно
+      - type: volume
+        source: postgresdb-data
+        target: /var/lib/postgresql/data
+    ports: # порты
+      - "5432:5432"
+    environment: # переменные окружения, меняйте их если хотите поменять пароль, логин или название стартовой базы данных
+      POSTGRES_USER: admin
+      POSTGRES_DB: RIP
+      POSTGRES_PASSWORD: qwerty
+
+volumes: # часть настроек для хранения данных
+  postgresdb-data:
+    driver: local

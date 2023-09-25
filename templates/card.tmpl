@@ -33,17 +33,24 @@
     <div class="container mt-4 text-center">
       <div class="col-md-6 mx-auto">
         <div class="card mb-4">
-          <img src="{{.Src}}" class="card-img-top" alt="Изображение багажа" />
+          <img
+            src="{{.PhotoURL}}"
+            class="card-img-top"
+            alt="Изображение багажа"
+          />
           <div class="card-body">
             <h5 class="card-title">Код багажа: {{.BaggageCode}}</h5>
-            <p class="card-text">ФИО: {{.OwnerName}}</p>
             <p class="card-text">Пункт назанчения: {{.Destination}}</p>
             <p class="card-text">Вес: {{.Weight}} кг</p>
-            <p class="card-text">Статус: {{.Status}}</p>
+            <p class="card-text">Статус: {{.BaggageStatus}}</p>
             <p class="card-text">Тип: {{.BaggageType}}</p>
-            <p class="card-text">
-              Размер: {{.Width}}&times;{{.Height}}&times;{{.Length}}
-            </p>
+            <p class="card-text">Размер: {{.Size}}</p>
+            <a
+              class="btn btn-primary mx-auto"
+              type="button"
+              href="/baggage/{{.BaggageID}}/delete"
+              >Удалить багаж</a
+            >
             <!-- Добавьте другие поля с информацией о багаже здесь -->
           </div>
         </div>
