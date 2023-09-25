@@ -45,7 +45,7 @@ func StartServer() {
 	})
 	//запрос на поиск
 	r.GET("/", func(c *gin.Context) {
-		searchQuery := c.DefaultQuery("q", "")
+		searchQuery := c.DefaultQuery("seacrhQuery", "")
 		var foundBaggages []Baggage
 		for _, baggage := range baggages {
 			if strings.HasPrefix(strings.ToLower(baggage.BaggageCode), strings.ToLower(searchQuery)) {

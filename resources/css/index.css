@@ -207,8 +207,8 @@ body {
   border: none;
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  width: 300px;
-  height: 600px;
+  width: 350px;
+  height: 650px;
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
@@ -228,5 +228,5 @@ body {
   margin-bottom: 20px;
 }
 .card-text {
-  font: normal 1.3rem/1.5rem var(--euclidflex-medium);
+  font: normal 1.2rem/1.5rem var(--euclidflex-medium);
 }
