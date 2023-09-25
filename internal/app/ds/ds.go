@@ -1,8 +1,8 @@
 package ds
 
 const (
-	BAGGAGE_STATUS_ACTIVE  = "active"
-	BAGGAGE_STATUS_DELETED = "delete"
+	BAGGAGE_STATUS_ACTIVE  = "активен"
+	BAGGAGE_STATUS_DELETED = "удален"
 )
 
 type Baggage struct {
