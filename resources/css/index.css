@@ -214,8 +214,8 @@ body {
   border: none;
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-  width: 300px; /* Устанавливаем фиксированную ширину карточки */
-  height: 650px; /* Устанавливаем фиксированную высоту карточки */
+  width: 350px; /* Устанавливаем фиксированную ширину карточки */
+  height: 750px; /* Устанавливаем фиксированную высоту карточки */
   margin-bottom: 20px; /* Установите отступ снизу */
   display: flex;
   flex-direction: column; /* Выравнивание элементов внутри карточки по вертикали */
@@ -235,5 +235,5 @@ body {
   margin-bottom: 20px; /* Увеличиваем отступ снизу */
 }
 .card-text {
-  font: normal 1.3rem/1.5rem var(--euclidflex-medium);
+  font: normal 1.2rem/1.5rem var(--euclidflex-medium);
 }
