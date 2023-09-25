@@ -9,10 +9,10 @@ import (
 
 func main() {
 	log.Println("Application start!")
-	// Создайте контекст
+	// Создаем контекст
 	ctx := context.Background()
 
-	// Создайте объект Application, передав контекст
+	// Создаем Aplication
 	application, err := app.New(ctx)
 	if err != nil {
 		log.Fatalf("Failed to initialize application: %v", err)

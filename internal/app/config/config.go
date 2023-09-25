@@ -46,6 +46,6 @@ func NewConfig(ctx context.Context) (*Config, error) {
 	}
 
 	log.Info("config parsed")
-
+	log.Println(cfg)
 	return cfg, nil
 }
