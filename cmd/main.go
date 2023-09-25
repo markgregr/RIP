@@ -19,6 +19,6 @@ func main() {
 	}
 
 	// Запустите сервер, вызвав метод StartServer у объекта Application
-	application.StartServer()
+	application.Run()
 	log.Println("Application terminated!")
 }

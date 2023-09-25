@@ -47,13 +47,11 @@
             <p class="card-text">Статус: {{.BaggageStatus}}</p>
             <p class="card-text">Тип: {{.BaggageType}}</p>
             <p class="card-text">Размер: {{.Size}}</p>
-            <a
-              class="btn btn-primary mx-auto"
-              type="button"
-              href="/baggage/{{.BaggageID}}/delete"
-              >Удалить багаж</a
-            >
-            <!-- Добавьте другие поля с информацией о багаже здесь -->
+            <form action="/baggage/{{.BaggageID}}/delete" method="POST">
+              <button class="btn btn-primary mx-auto" type="submit">
+                Удалить багаж
+              </button>
+            </form>
           </div>
         </div>
       </div>
