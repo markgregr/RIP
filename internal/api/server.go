@@ -48,7 +48,7 @@ func StartServer() {
 		searchQuery := c.DefaultQuery("q", "")
 		var foundBaggages []Baggage
 		for _, baggage := range baggages {
-			if strings.HasPrefix(strings.ToLower(baggage.Destination), strings.ToLower(searchQuery)) {
+			if strings.HasPrefix(strings.ToLower(baggage.BaggageCode), strings.ToLower(searchQuery)) {
 				foundBaggages = append(foundBaggages, baggage)
 			}
 		}
