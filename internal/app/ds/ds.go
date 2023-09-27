@@ -1,5 +1,6 @@
 package ds
 
+import "time"
 const (
 	BAGGAGE_STATUS_ACTIVE  = "активен"
 	BAGGAGE_STATUS_DELETED = "удален"
@@ -21,9 +22,9 @@ type Baggage struct {
 type Delivery struct {
 	DeliveryID     int    `gorm:"primarykey" json:"delivery_id"`
 	FlightNumber   string `json:"flight_number"`
-	CreationDate   string `json:"creation_date"`
-	FormationDate  string `json:"formation_date"`
-	CompletionDate string `json:"completion_date"`
+	CreationDate   time.Time `json:"creation_date"`
+	FormationDate  time.Time `json:"formation_date"`
+	CompletionDate time.Time `json:"completion_date"`
 	DeliveryStatus string `json:"delivery_status"`
 	UserID         int    `json:"user_id"`
 	ModeratorID    int    `json:"moderator_id"`
@@ -35,7 +36,7 @@ type DeliveryBagggage struct {
 	BaggageID          int `json:"baggage_id"`
 }
 
-type Passenger struct {
+type User struct {
 	UserID   int    `gorm:"primarykey" json:"user_id"`
 	FullName string `json:"full_name"`
 	Email    string `json:"email"`
