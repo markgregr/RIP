@@ -4,13 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/markgregr/RIP/internal/api"
 	"github.com/markgregr/RIP/internal/app/config"
-	"github.com/markgregr/RIP/internal/app/ds"
 	"github.com/markgregr/RIP/internal/app/dsn"
 	"github.com/markgregr/RIP/internal/app/repository"
 )
@@ -48,6 +45,10 @@ func New(ctx context.Context) (*Application, error) {
 
 // Run запускает приложение.
 func (app *Application) Run(){
+
+	handler := api.NewHandler(app.Repository);
+
+
     r := gin.Default()
 
 	r.LoadHTMLGlob("templates/*")
@@ -56,64 +57,28 @@ func (app *Application) Run(){
 	r.Static("/images", "./resources/images")
 	r.Static("/fonts", "./resources/fonts")
     
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+	
+    //методы для багажа
+	r.GET("/", handler.GetBaggages)
+	r.GET("/baggage/:id", handler.GetBaggageByID)
+	r.DELETE("/baggage/:id/delete", handler.DeleteBaggage)
+	r.POST("/create", handler.CreateBaggage)
+    r.PUT("/baggage/:id/update", handler.UpdateBaggage)
 
-	r.GET("/", func(c *gin.Context) {
-		baggages, err := app.Repository.GetAllBaggage()
-		if err != nil {
-			log.Println("Error Repository method GetAll:", err)
-			return
-		}
-		searchQuery := c.DefaultQuery("searchQuery", "")
-		
-		var foundBaggages []ds.Baggage
-		for _, baggage := range baggages {
-			if strings.HasPrefix(strings.ToLower(baggage.BaggageCode), strings.ToLower(searchQuery)) {
-				foundBaggages = append(foundBaggages, baggage)
-			}
-		}
-		data := gin.H{
-			"baggages": foundBaggages,
-		}
-		c.HTML(http.StatusOK, "index.tmpl", data)
-	})
+    //методы для заявок 
+    r.GET("/deliveries", handler.GetDeliveries)
+    r.GET("/delivery/:id", handler.GetDeliveryByID)
+    r.DELETE("/delivery/:id/delete", handler.DeleteDelivery)
+    r.POST("/deliveries/create", handler.CreateDelivery)
+    r.PUT("/delivery/:id/update", handler.UpdateDelivery)
 
-	r.GET("/baggage/:id", func(c *gin.Context) {
-		baggage_id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			// Обработка ошибки
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
-			return
-		}
+    //методы для пользователей
+    r.GET("/users", handler.GetUsers)
+    r.GET("/user/:id", handler.GetUserByID)
+    r.DELETE("/user/:id/delete", handler.DeleteUser)
+    r.POST("/users/create", handler.CreateUser)
+    r.PUT("/user/:id/update", handler.UpdateUser)
 
-		baggage, err := app.Repository.GetBaggageByID(baggage_id)
-		if err != nil {
-			// Обработка ошибки
-			c.JSON(http.StatusBadRequest, gin.H{"error": "GetBaggageByID"})
-			return
-		}
-
-		c.HTML(http.StatusOK, "card.tmpl", baggage)
-	})
-
-	r.POST("/baggage/:id/delete", func(c *gin.Context) {
-
-		baggage_id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			// Обработка ошибки
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
-			return
-		}
-
-		app.Repository.DeleteBaggage(baggage_id)
-
-		c.Redirect(http.StatusMovedPermanently, "/")
-		
-	})
     
     addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)
     r.Run(addr)
