@@ -78,6 +78,7 @@ func (app *Application) Run(){
 		}
 		data := gin.H{
 			"baggages": foundBaggages,
+			"search": searchQuery,
 		}
 		c.HTML(http.StatusOK, "index.tmpl", data)
 	})
