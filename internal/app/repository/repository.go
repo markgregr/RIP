@@ -22,7 +22,7 @@ func New(dsn string) (*Repository, error) {
 	}, nil
 }
 
-func (r *Repository) GetBaggageByID(baggage_id int) (*ds.Baggage, error) {
+func (r *Repository) GetActiveBaggageByID(baggage_id int) (*ds.Baggage, error) {
 	baggage := &ds.Baggage{}
 
 	err := r.db.First(baggage, "baggage_id = ? AND baggage_status = ?", baggage_id, ds.BAGGAGE_STATUS_ACTIVE).Error // find product with id = 1
@@ -33,17 +33,33 @@ func (r *Repository) GetBaggageByID(baggage_id int) (*ds.Baggage, error) {
 	return baggage, nil
 }
 
-func (r *Repository) CreateBaggage(baggage ds.Baggage) error {
-	return r.db.Create(baggage).Error
-}
-
-func (r *Repository) GetAllBaggage() ([]ds.Baggage,error) {
+func (r *Repository) GetActiveBaggages() ([]ds.Baggage,error) {
 	var baggages []ds.Baggage
 	if err := r.db.Find(&baggages, "baggage_status = ?", ds.BAGGAGE_STATUS_ACTIVE).Error; err != nil {
         return nil, err
     }
 	return baggages, nil
 }
+
+func (r *Repository) GetDeletedBaggageByID(baggage_id int) (*ds.Baggage, error) {
+	baggage := &ds.Baggage{}
+
+	err := r.db.First(baggage, "baggage_id = ? AND baggage_status = ?", baggage_id, ds.BAGGAGE_STATUS_DELETED).Error // find product with id = 1
+	if err != nil {
+		return nil, err
+	}
+
+	return baggage, nil
+}
+
+func (r *Repository) GetDeletedBaggages() ([]ds.Baggage,error) {
+	var baggages []ds.Baggage
+	if err := r.db.Find(&baggages, "baggage_status = ?", ds.BAGGAGE_STATUS_DELETED).Error; err != nil {
+        return nil, err
+    }
+	return baggages, nil
+}
+
 
 func (r *Repository) DeleteBaggage(baggage_id int) error {
 	return r.db.Exec("UPDATE baggages SET baggage_status = ? WHERE baggage_id = ?", ds.BAGGAGE_STATUS_DELETED, baggage_id).Error
