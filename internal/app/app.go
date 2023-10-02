@@ -116,46 +116,6 @@ func (app *Application) Run(){
 		
 	})
     
-    
-	r.GET("/deletedbaggages", func(c *gin.Context) {
-		baggages, err := app.Repository.GetDeletedBaggages()
-		if err != nil {
-			log.Println("Error Repository method GetAll:", err)
-			return
-		}
-		searchQuery := c.DefaultQuery("search", "")
-		
-		var foundBaggages []ds.Baggage
-		for _, baggage := range baggages {
-			if strings.HasPrefix(strings.ToLower(baggage.BaggageCode), strings.ToLower(searchQuery)) {
-				foundBaggages = append(foundBaggages, baggage)
-			}
-		}
-		data := gin.H{
-			"baggages": foundBaggages,
-		}
-		c.HTML(http.StatusOK, "index.tmpl", data)
-	})
-
-	r.GET("/deletedbaggage/:id", func(c *gin.Context) {
-		baggage_id, err := strconv.Atoi(c.Param("id"))
-		if err != nil {
-			// Обработка ошибки
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
-			return
-		}
-
-		baggage, err := app.Repository.GetDeletedBaggageByID(baggage_id)
-		if err != nil {
-			// Обработка ошибки
-			c.JSON(http.StatusBadRequest, gin.H{"error": "GetBaggageByID"})
-			return
-		}
-
-		c.HTML(http.StatusOK, "card.tmpl", baggage)
-	})
-	
-	
 	addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)
     r.Run(addr)
 	log.Println("Server down")
