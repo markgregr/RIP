@@ -45,16 +45,19 @@ func StartServer() {
 	})
 
 	r.GET("/", func(c *gin.Context) {
-		searchQuery := c.DefaultQuery("q", "")
+		searchQuery := c.DefaultQuery("search", "")
 		var foundBaggages []Baggage
 		for _, baggage := range baggages {
 			if strings.HasPrefix(strings.ToLower(baggage.BaggageCode), strings.ToLower(searchQuery)) {
 				foundBaggages = append(foundBaggages, baggage)
+				log.Println(searchQuery)
 			}
 		}
 		data := gin.H{
 			"baggages": foundBaggages,
+			"search": searchQuery,
 		}
+		log.Println(searchQuery)
 		c.HTML(http.StatusOK, "index.tmpl", data)
 	})
 
