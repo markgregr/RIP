@@ -2,7 +2,8 @@
   {
     "baggageID": 1,
     "ownerName": "Иванов Иван Иванович",
-    "destination": "Нью-Йорк",
+    "pasportDetails": "2517468990",
+    "airline": "S7",
     "weight": 20.5,
     "status": "зарегистрирован",
     "src": "/images/1.png",
@@ -16,7 +17,8 @@
   {
     "baggageID": 2,
     "ownerName": "Петрова Мария Ивановна",
-    "destination": "Лондон",
+    "pasportDetails": "2517468990",
+    "airline": "S7",
     "weight": 18.0,
     "status": "на борту",
     "src": "/images/2.png",
@@ -30,7 +32,8 @@
   {
     "baggageID": 3,
     "ownerName": "Смирнов Алексей Алексеевич",
-    "destination": "Париж",
+    "pasportDetails": "2517468990",
+    "airline": "S7",
     "weight": 25.0,
     "status": "доставлен",
     "src": "/images/3.png",
@@ -44,7 +47,8 @@
   {
     "baggageID": 4,
     "ownerName": "Козлова Елена Сергеевна",
-    "destination": "Токио",
+    "pasportDetails": "2517468990",
+    "airline": "S7",
     "weight": 19.5,
     "status": "зарегистрирован",
     "src": "/images/4.png",
@@ -58,7 +62,8 @@
   {
     "baggageID": 5,
     "ownerName": "Федоров Дмитрий Андреевич",
-    "destination": "Дубай",
+    "pasportDetails": "2517468990",
+    "airline": "S7",
     "weight": 22.0,
     "status": "на борту",
     "src": "/images/5.png",
@@ -72,7 +77,8 @@
   {
     "baggageID": 6,
     "ownerName": "Сорокина Ольга Ивановна",
-    "destination": "Москва",
+    "pasportDetails": "2517468990",
+    "airline": "S7",
     "weight": 16.5,
     "status": "доставлен",
     "src": "/images/6.png",
