@@ -60,7 +60,6 @@ func (r *Repository) GetDeletedBaggages() ([]ds.Baggage,error) {
 	return baggages, nil
 }
 
-
 func (r *Repository) DeleteBaggage(baggage_id int) error {
 	return r.db.Exec("UPDATE baggages SET baggage_status = ? WHERE baggage_id = ?", ds.BAGGAGE_STATUS_DELETED, baggage_id).Error
 }
