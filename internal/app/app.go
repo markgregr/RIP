@@ -6,11 +6,9 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/markgregr/RIP/internal/app/config"
-	"github.com/markgregr/RIP/internal/app/ds"
 	"github.com/markgregr/RIP/internal/app/dsn"
 	"github.com/markgregr/RIP/internal/app/repository"
 )
@@ -63,22 +61,17 @@ func (app *Application) Run(){
 	})
 
 	r.GET("/", func(c *gin.Context) {
-		baggages, err := app.Repository.GetActiveBaggages()
+		
+		searchCode := c.DefaultQuery("searchCode", "")
+
+		baggages, err := app.Repository.GetBaggages(searchCode)
 		if err != nil {
 			log.Println("Error Repository method GetAll:", err)
 			return
 		}
-		searchQuery := c.DefaultQuery("search", "")
-		
-		var foundBaggages []ds.Baggage
-		for _, baggage := range baggages {
-			if strings.HasPrefix(strings.ToLower(baggage.BaggageCode), strings.ToLower(searchQuery)) {
-				foundBaggages = append(foundBaggages, baggage)
-			}
-		}
 		data := gin.H{
-			"baggages": foundBaggages,
-			"search": searchQuery,
+			"baggages": baggages,
+			"searchCode": searchCode,
 		}
 		c.HTML(http.StatusOK, "index.tmpl", data)
 	})
@@ -91,7 +84,7 @@ func (app *Application) Run(){
 			return
 		}
 
-		baggage, err := app.Repository.GetActiveBaggageByID(baggage_id)
+		baggage, err := app.Repository.GetBaggageByID(baggage_id)
 		if err != nil {
 			// Обработка ошибки
 			c.JSON(http.StatusBadRequest, gin.H{"error": "GetBaggageByID"})
@@ -109,11 +102,8 @@ func (app *Application) Run(){
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
 			return
 		}
-
 		app.Repository.DeleteBaggage(baggage_id)
-
 		c.Redirect(http.StatusMovedPermanently, "/")
-		
 	})
     
 	addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)

@@ -161,7 +161,7 @@ body {
 }
 
 .cards-title {
-  font: normal 2rem/2.125rem var(--euclidflex-regular);
+  font: normal 2.1rem/2.125rem var(--euclidflex-regular);
   color: #fff;
   margin-bottom: 0;
 }
@@ -173,7 +173,7 @@ body {
   border-radius: 5px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
   width: 300px; /* Устанавливаем фиксированную ширину карточки */
-  height: 350px; /* Устанавливаем фиксированную высоту карточки */
+  height: 400px; /* Устанавливаем фиксированную высоту карточки */
   margin-bottom: 20px; /* Установите отступ снизу */
   display: flex;
   text-align: center;
@@ -185,7 +185,9 @@ body {
   max-height: 100%; /* Максимальная высота изображения */
   height: auto; /* Автоматическая высота, чтобы изображение не искажалось */
 }
-
+.delete-form {
+  padding-top: 50px;
+}
 .btn {
   width: 180px;
   height: 60px;

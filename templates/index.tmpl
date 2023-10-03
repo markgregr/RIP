@@ -53,9 +53,9 @@
               <input
                 type="text"
                 class="form-control"
-                name="search"
+                name="searchCode"
                 placeholder="Поиск багажа"
-                value="{{.search}}"
+                value="{{.searchCode}}"
                 aria-label="Поиск багажа"
                 aria-describedby="search-button"
               />
@@ -75,19 +75,31 @@
         {{ range.baggages }}
         <div class="col-md-4">
           <div class="cards mb-4">
-            <a href="/baggage/{{.BaggageID}}" class="card-link">
-              <!-- Добавляем класс card-link -->
-              <img
-                src="{{.PhotoURL}}"
-                class="cards-img-top"
-                alt="Изображение багажа"
-              />
-              <div class="cards-body">
-                <h5 class="cards-title">Код багажа: {{.BaggageCode}}</h5>
-              </div>
-            </a>
+            <div class="card-about">
+              <a href="/baggage/{{.BaggageID}}" class="card-link">
+                <!-- Добавляем класс card-link -->
+                <img
+                  src="{{.PhotoURL}}"
+                  class="cards-img-top"
+                  alt="Изображение багажа"
+                />
+                <div class="cards-body">
+                  <h5 class="cards-title">Код багажа: {{.BaggageCode}}</h5>
+                </div>
+              </a>
+              <form
+                class="delete-form"
+                action="/baggage/{{.BaggageID}}/delete"
+                method="POST"
+              >
+                <button class="btn btn-primary mx-auto" type="submit">
+                  Удалить багаж
+                </button>
+              </form>
+            </div>
           </div>
         </div>
+
         {{ end }}
       </div>
       <!-- Конец обертки для строк с карточками -->

@@ -1,2 +1,2 @@
 ServiceHost = "0.0.0.0" # просто ключ значение
-ServicePort = 8083
+ServicePort = 80
