@@ -41,21 +41,6 @@ func (h *Handler) GetDeliveryByID(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, delivery)
 }
-func (h *Handler) CreateDelivery(c *gin.Context) {
-	var delivery ds.Delivery
-	if err := c.ShouldBindJSON(&delivery); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	err := h.Repo.CreateDelivery(&delivery)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Delivery created successfully"})
-}
 func (h *Handler) DeleteDelivery(c *gin.Context) {
 	deliveryID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

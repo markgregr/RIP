@@ -10,16 +10,15 @@ import (
 )
 
 func main() {
-	_ = godotenv.Load()
-	db, err := gorm.Open(postgres.Open(dsn.FromEnv()), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
+    _ = godotenv.Load()
+    db, err := gorm.Open(postgres.Open(dsn.FromEnv()), &gorm.Config{})
+    if err != nil {
+        panic("failed to connect database")
+    }
 
-	// Migrate the schema
-	err = db.AutoMigrate(&ds.Baggage{},&ds.Delivery{},&ds.DeliveryBagggage{},&ds.User{})
-	if err != nil {
-		panic("cant migrate db")
-	}
-	
+    // Явно мигрировать только нужные таблицы
+    err = db.AutoMigrate(&ds.Baggage{},&ds.Delivery{}, &ds.User{}, &ds.DeliveryBaggage{})
+    if err != nil {
+        panic("cant migrate db")
+    }
 }

@@ -45,7 +45,7 @@ func (h *Handler) GetBaggageByID(c *gin.Context) {
 }
 func (h *Handler) CreateBaggage(c *gin.Context) {
 	var baggage ds.Baggage
-	if err := c.ShouldBindJSON(&baggage); err != nil {
+	if err := c.BindJSON(&baggage); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -81,7 +81,7 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
 	}
 
 	var updatedBaggage ds.Baggage
-	if err := c.ShouldBindJSON(&updatedBaggage); err != nil {
+	if err := c.BindJSON(&updatedBaggage); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

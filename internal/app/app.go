@@ -44,43 +44,38 @@ func New(ctx context.Context) (*Application, error) {
 }
 
 // Run запускает приложение.
-func (app *Application) Run(){
-
-	handler := api.NewHandler(app.Repository);
-
-
+func (app *Application) Run() {
+    handler := api.NewHandler(app.Repository)
     r := gin.Default()
 
-	r.LoadHTMLGlob("templates/*")
-	r.Static("/css", "./resources/css")
-	r.Static("/data", "./resources/data")
-	r.Static("/images", "./resources/images")
-	r.Static("/fonts", "./resources/fonts")
+    r.LoadHTMLGlob("templates/*")
+    r.Static("/css", "./resources/css")
+    r.Static("/data", "./resources/data")
+    r.Static("/images", "./resources/images")
+    r.Static("/fonts", "./resources/fonts")
+
+    // Группа запросов для багажа
+    baggageGroup := r.Group("/baggage")
+    {
+        baggageGroup.GET("/", handler.GetBaggages)
+        baggageGroup.GET("/:id", handler.GetBaggageByID)
+        baggageGroup.DELETE("/:id/delete", handler.DeleteBaggage)
+        baggageGroup.POST("/create", handler.CreateBaggage)
+        baggageGroup.PUT("/:id/update", handler.UpdateBaggage)
+    }
+
+    // Группа запросов для заявок
+    deliveryGroup := r.Group("/deliveries")
+    {
+        deliveryGroup.GET("/", handler.GetDeliveries)
+        deliveryGroup.GET("/:id", handler.GetDeliveryByID)
+        deliveryGroup.DELETE("/:id/delete", handler.DeleteDelivery)
+        deliveryGroup.PUT("/:id/update", handler.UpdateDelivery)
+    }
     
-	
-    //методы для багажа
-	r.GET("/", handler.GetBaggages)
-	r.GET("/baggage/:id", handler.GetBaggageByID)
-	r.DELETE("/baggage/:id/delete", handler.DeleteBaggage)
-	r.POST("/create", handler.CreateBaggage)
-    r.PUT("/baggage/:id/update", handler.UpdateBaggage)
 
-    //методы для заявок 
-    r.GET("/deliveries", handler.GetDeliveries)
-    r.GET("/delivery/:id", handler.GetDeliveryByID)
-    r.DELETE("/delivery/:id/delete", handler.DeleteDelivery)
-    r.POST("/deliveries/create", handler.CreateDelivery)
-    r.PUT("/delivery/:id/update", handler.UpdateDelivery)
-
-    //методы для пользователей
-    r.GET("/users", handler.GetUsers)
-    r.GET("/user/:id", handler.GetUserByID)
-    r.DELETE("/user/:id/delete", handler.DeleteUser)
-    r.POST("/users/create", handler.CreateUser)
-    r.PUT("/user/:id/update", handler.UpdateUser)
-
-    
     addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)
     r.Run(addr)
-	log.Println("Server down")
+    log.Println("Server down")
 }
+
