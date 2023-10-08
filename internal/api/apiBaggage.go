@@ -1,32 +1,19 @@
 package api
 
-import (
-	"net/http"
-	"strconv"
-	"strings"
-
-	"github.com/gin-gonic/gin"
-	"github.com/markgregr/RIP/internal/app/ds"
-)
-
 //методы для таблицы baggage
 func (h *Handler) GetBaggages(c *gin.Context) {
-	baggages, err := h.Repo.GetBaggages()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-		return
-	}
+	searchCode := c.DefaultQuery("searchCode", "")
 
-	searchQuery := c.DefaultQuery("searchQuery", "")
-	var foundBaggages []ds.Baggage
-	for _, baggage := range baggages {
-		if strings.HasPrefix(strings.ToLower(baggage.BaggageCode), strings.ToLower(searchQuery)) {
-			foundBaggages = append(foundBaggages, baggage)
+		baggages, err := app.Repository.GetBaggages(searchCode)
+		if err != nil {
+			log.Println("Error Repository method GetAll:", err)
+			return
 		}
-	}
-	//c.JSON(http.StatusOK, gin.H{"baggages": foundBaggages})
-	data := gin.H{"baggages": foundBaggages}
-	c.HTML(http.StatusOK,"index.tmpl", data)
+		data := gin.H{
+			"baggages": baggages,
+			"searchCode": searchCode,
+		}
+		c.HTML(http.StatusOK, "index.tmpl", data)
 }
 
 func (h *Handler) GetBaggageByID(c *gin.Context) {

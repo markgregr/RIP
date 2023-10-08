@@ -1,14 +1,5 @@
 package api
 
-import (
-	"net/http"
-	"strconv"
-	"strings"
-
-	"github.com/gin-gonic/gin"
-	"github.com/markgregr/RIP/internal/app/ds"
-)
-
 //методы для таблицы delivery
 func (h *Handler) GetDeliveries(c *gin.Context) {
 	deliveries, err := h.Repo.GetDeliveries()
