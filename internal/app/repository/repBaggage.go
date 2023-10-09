@@ -1,9 +1,13 @@
 package repository
 
+import (
+	"strings"
 
+	"github.com/markgregr/RIP/internal/app/ds"
+)
 
 //методы для таблицы baggage
-func (r *Repository) GetBaggages() ([]ds.Baggage, error) {
+func (r *Repository) GetBaggages(searchCode string) ([]ds.Baggage,  error) {
 	searchCode = strings.ToUpper(searchCode+"%")
 	var baggages []ds.Baggage
 	if err := r.db.Find(&baggages, "baggage_status = ? AND baggage_code LIKE ?", ds.BAGGAGE_STATUS_ACTIVE, searchCode).Error; err != nil {
@@ -34,3 +38,5 @@ func (r *Repository) UpdateBaggage(baggageID int, updatedBaggage *ds.Baggage) er
 	}
 	return nil
 }
+
+

@@ -48,31 +48,30 @@ func (app *Application) Run() {
     handler := api.NewHandler(app.Repository)
     r := gin.Default()
 
-    r.LoadHTMLGlob("templates/*")
-    r.Static("/css", "./resources/css")
-    r.Static("/data", "./resources/data")
-    r.Static("/images", "./resources/images")
-    r.Static("/fonts", "./resources/fonts")
-
     // Группа запросов для багажа
-    baggageGroup := r.Group("/baggage")
+    BaggageGroup := r.Group("/baggage")
     {
-        baggageGroup.GET("/", handler.GetBaggages)
-        baggageGroup.GET("/:id", handler.GetBaggageByID)
-        baggageGroup.DELETE("/:id/delete", handler.DeleteBaggage)
-        baggageGroup.POST("/create", handler.CreateBaggage)
-        baggageGroup.PUT("/:id/update", handler.UpdateBaggage)
-    }
+        BaggageGroup.GET("/", handler.GetBaggages)
+        BaggageGroup.GET("/:id", handler.GetBaggageByID)
+        BaggageGroup.DELETE("/:id/delete", handler.DeleteBaggage)
+        BaggageGroup.POST("/create", handler.CreateBaggage)
+        BaggageGroup.PUT("/:id/update", handler.UpdateBaggage)
+        BaggageGroup.PUT("/adddelivery", handler.AddBaggageToDelivery)
+    }   
 
-    // Группа запросов для заявок
-    deliveryGroup := r.Group("/deliveries")
+    // Группа запросов для доставки
+    DeliveryGroup := r.Group("/delivery")
     {
-        deliveryGroup.GET("/", handler.GetDeliveries)
-        deliveryGroup.GET("/:id", handler.GetDeliveryByID)
-        deliveryGroup.DELETE("/:id/delete", handler.DeleteDelivery)
-        deliveryGroup.PUT("/:id/update", handler.UpdateDelivery)
+        DeliveryGroup.GET("/", handler.GetDeliveries)
+        DeliveryGroup.GET("/:id", handler.GetDeliveryByID)
+        DeliveryGroup.DELETE("/:id/delete", handler.DeleteDelivery)
+        DeliveryGroup.PUT("/:id/update", handler.UpdateDelivery)
     }
-    
+    // Группа запросов для м-м
+    DeliveryBaggageGroup := r.Group("/baggagedelivery")
+    {
+        DeliveryBaggageGroup.DELETE("/delete", handler.RemoveBaggageFromDelivery)
+    }
 
     addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)
     r.Run(addr)

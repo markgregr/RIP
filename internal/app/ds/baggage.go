@@ -1,7 +1,7 @@
 package ds
 
 type Baggage struct {
-	BaggageID      uint    `gorm:"autoIncrement;primarykey" json:"baggage_id"`
+	BaggageID      uint    `gorm:"type:serial;primarykey" json:"baggage_id"`
 	BaggageCode    string  `json:"baggage_code"`
 	Weight         float32 `json:"weight"`
 	Size           string  `json:"size"`

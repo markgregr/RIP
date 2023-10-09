@@ -1,36 +1,38 @@
 package api
 
+import (
+	"net/http"
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/markgregr/RIP/internal/app/ds"
+)
+
 //методы для таблицы baggage
 func (h *Handler) GetBaggages(c *gin.Context) {
-	searchCode := c.DefaultQuery("searchCode", "")
-
-		baggages, err := app.Repository.GetBaggages(searchCode)
-		if err != nil {
-			log.Println("Error Repository method GetAll:", err)
-			return
-		}
-		data := gin.H{
-			"baggages": baggages,
-			"searchCode": searchCode,
-		}
-		c.HTML(http.StatusOK, "index.tmpl", data)
+    searchCode := c.DefaultQuery("searchCode", "")
+    baggages, err := h.Repo.GetBaggages(searchCode)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        return
+    }
+    c.JSON(http.StatusOK, gin.H{"baggages": baggages})
 }
-
 func (h *Handler) GetBaggageByID(c *gin.Context) {
-	baggageID, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
-		return
-	}
-
-	baggage, err := h.Repo.GetBaggageByID(baggageID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "GetBaggageByID"})
-		return
-	}
-	c.HTML(http.StatusOK, "card.tmpl", baggage)
+    baggageID, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
+        return
+    }
+    baggage, err := h.Repo.GetBaggageByID(baggageID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        return
+    }
+    c.JSON(http.StatusOK, baggage)
 }
 func (h *Handler) CreateBaggage(c *gin.Context) {
+    searchCode := c.DefaultQuery("searchCode", "")
 	var baggage ds.Baggage
 	if err := c.BindJSON(&baggage); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -43,9 +45,17 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Baggage created successfully"})
+	// Получаем обновленный список багажей
+	baggages, err := h.Repo.GetBaggages(searchCode)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Baggage created successfully", "baggages": baggages})
 }
 func (h *Handler) DeleteBaggage(c *gin.Context) {
+    searchCode := c.DefaultQuery("searchCode", "")
 	baggageID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
@@ -58,26 +68,48 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Baggage deleted successfully"})
-}
-func (h *Handler) UpdateBaggage(c *gin.Context) {
-	baggageID, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
-		return
-	}
-
-	var updatedBaggage ds.Baggage
-	if err := c.BindJSON(&updatedBaggage); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = h.Repo.UpdateBaggage(baggageID, &updatedBaggage)
+	// Получаем обновленный список багажей
+	baggages, err := h.Repo.GetBaggages(searchCode)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Baggage updated successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Baggage deleted successfully", "baggages": baggages})
 }
+func (h *Handler) UpdateBaggage(c *gin.Context) {
+    baggageID, err := strconv.Atoi(c.Param("id"))
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
+        return
+    }
+
+    var updatedBaggage ds.Baggage
+    if err := c.BindJSON(&updatedBaggage); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
+
+    // Попытка обновления багажа в репозитории
+    err = h.Repo.UpdateBaggage(baggageID, &updatedBaggage)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        return
+    }
+
+    // Получаем обновленный объект багажа (указатель на Baggage)
+    updatedBaggagePtr, err := h.Repo.GetBaggageByID(baggageID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        return
+    }
+
+    // Преобразуем указатель в значение
+    updatedBaggage = *updatedBaggagePtr
+
+    c.JSON(http.StatusOK, gin.H{"message": "Baggage updated successfully", "baggage": updatedBaggage})
+}
+
+
+
+

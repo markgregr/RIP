@@ -3,7 +3,7 @@ package ds
 import "time"
 
 type Delivery struct {
-	DeliveryID     uint      `gorm:"autoIncrement;primarykey" json:"delivery_id"`
+	DeliveryID     uint      `gorm:"type:serial;primarykey" json:"delivery_id"`
 	FlightNumber   string    `json:"flight_number"`
 	CreationDate   time.Time `json:"creation_date"`
 	FormationDate  time.Time `json:"formation_date"`
