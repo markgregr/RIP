@@ -52,12 +52,14 @@ func (app *Application) Run() {
     BaggageGroup := r.Group("/baggage")
     {
         BaggageGroup.GET("/", handler.GetBaggages)
-        BaggageGroup.GET("/:id", handler.GetBaggageByID)
-        BaggageGroup.DELETE("/:id/delete", handler.DeleteBaggage)
+        BaggageGroup.GET("/:baggage_id", handler.GetBaggageByID) 
+        BaggageGroup.DELETE("/:baggage_id/delete", handler.DeleteBaggage) 
         BaggageGroup.POST("/create", handler.CreateBaggage)
-        BaggageGroup.PUT("/:id/update", handler.UpdateBaggage)
-        BaggageGroup.PUT("/adddelivery", handler.AddBaggageToDelivery)
-    }   
+        BaggageGroup.PUT("/:baggage_id/update", handler.UpdateBaggage) 
+        BaggageGroup.PUT("/:baggage_id/delivery/:delivery_id", handler.AddBaggageToDelivery) 
+        BaggageGroup.DELETE("/:baggage_id/delivery/:delivery_id/delete", handler.RemoveBaggageFromDelivery) 
+    }
+    
 
     // Группа запросов для доставки
     DeliveryGroup := r.Group("/delivery")
@@ -66,11 +68,6 @@ func (app *Application) Run() {
         DeliveryGroup.GET("/:id", handler.GetDeliveryByID)
         DeliveryGroup.DELETE("/:id/delete", handler.DeleteDelivery)
         DeliveryGroup.PUT("/:id/update", handler.UpdateDelivery)
-    }
-    // Группа запросов для м-м
-    DeliveryBaggageGroup := r.Group("/baggagedelivery")
-    {
-        DeliveryBaggageGroup.DELETE("/delete", handler.RemoveBaggageFromDelivery)
     }
 
     addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)

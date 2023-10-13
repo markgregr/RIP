@@ -11,7 +11,9 @@ import (
 //методы для таблицы delivery
 func (h *Handler) GetDeliveries(c *gin.Context) {
 	searchFlightNumber := c.DefaultQuery("searchFlightNumber", "")
-	deliveries, err := h.Repo.GetDeliveries(searchFlightNumber)
+	startFormationDate := c.DefaultQuery("startFormationDate", "")
+	endFormationDate := c.DefaultQuery("endFormationDate", "")
+	deliveries, err := h.Repo.GetDeliveries(searchFlightNumber, startFormationDate, endFormationDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -33,6 +35,8 @@ func (h *Handler) GetDeliveryByID(c *gin.Context) {
 }
 func (h *Handler) DeleteDelivery(c *gin.Context) {
 	searchFlightNumber := c.DefaultQuery("searchFlightNumber", "")
+	startFormationDate := c.DefaultQuery("startFormationDate", "")
+	endFormationDate := c.DefaultQuery("endFormationDate", "")
 	deliveryID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
@@ -46,7 +50,7 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
 	}
 
 	// Получаем обновленный список багажей
-	deliveries, err := h.Repo.GetDeliveries(searchFlightNumber)
+	deliveries, err := h.Repo.GetDeliveries(searchFlightNumber, startFormationDate, endFormationDate)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
@@ -55,34 +59,34 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Delivery deleted successfully", "deliveries": deliveries})
 }
 func (h *Handler) UpdateDelivery(c *gin.Context) {
-	deliveryID, err := strconv.Atoi(c.Param("id"))
+    deliveryID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
         return
     }
 
-    var updatedDelivery ds.Delivery
-    if err := c.BindJSON(&updatedDelivery); err != nil {
+    var updatedDeliveryRequest ds.Delivery
+    if err := c.BindJSON(&updatedDeliveryRequest); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    // Попытка обновления багажа в репозитории
-    err = h.Repo.UpdateDelivery(deliveryID, &updatedDelivery)
+    // Попытка обновления доставки в репозитории
+    if err := h.Repo.UpdateDelivery(deliveryID, &updatedDeliveryRequest); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        return
+    }
+
+    // Получаем обновленный объект доставки
+    updatedDelivery, err := h.Repo.GetDeliveryByID(deliveryID)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
         return
     }
 
-    // Получаем обновленный объект багажа (указатель на Baggage)
-    updatedDeliveryPtr, err := h.Repo.GetDeliveryByID(deliveryID)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-        return
-    }
-
-    // Преобразуем указатель в значение
-    updatedDelivery = *updatedDeliveryPtr
+    // Здесь предполагается, что метод UpdateDelivery вернет ошибку, если обновление не удалось
+    // В противном случае, вы не сможете получить обновленный объект
 
     c.JSON(http.StatusOK, gin.H{"message": "Delivery updated successfully", "delivery": updatedDelivery})
 }
+

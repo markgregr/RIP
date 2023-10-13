@@ -2,6 +2,7 @@ package repository
 
 import (
 	"errors"
+	"time"
 
 	"github.com/markgregr/RIP/internal/app/ds"
 )
@@ -23,30 +24,88 @@ func (r *Repository) AddBaggageToDelivery(baggageID uint, deliveryID uint) error
         return errors.New("Baggage is not active")
     }
 
-	// Создаем связь между багажом и доставкой в промежуточной таблице
+    // Устанавливаем formation_date для доставки на текущую дату и время в часовом поясе "Europe/Moscow"
+    moscowLocation, err := time.LoadLocation("Europe/Moscow")
+    if err != nil {
+        return err
+    }
+    currentTime := time.Now().In(moscowLocation)
+
+    // Создаем связь между багажом и доставкой в промежуточной таблице
     relation := &ds.DeliveryBaggage{
         BaggageID:  baggageID,
         DeliveryID: deliveryID,
     }
 
-    if err := r.db.Create(relation).Error; err != nil {
-        return r.db.Exec("UPDATE deliveries SET delivery_status = ? WHERE delievry_id = ?", ds.DELIVERY_STATUS_WORK, deliveryID).Error
+    // Начинаем транзакцию
+    tx := r.db.Begin()
+    defer func() {
+        if r := recover(); r != nil {
+            tx.Rollback()
+        }
+    }()
+    
+    // Создаем связь в таблице delivery_baggages
+    if err := tx.Create(relation).Error; err != nil {
+        tx.Rollback()
+        return err
     }
+
+    // Обновляем formation_date для доставки
+    if err := tx.Model(&delivery).Update("formation_date", currentTime).Error; err != nil {
+        tx.Rollback()
+        return err
+    }
+
+    // Фиксируем транзакцию
+    tx.Commit()
 
     return nil
 }
 
 func (r *Repository) RemoveBaggageFromDelivery(baggageID uint, deliveryID uint) error {
+    // Начинаем транзакцию
+    tx := r.db.Begin()
+    defer func() {
+        if r := recover(); r != nil {
+            tx.Rollback()
+        }
+    }()
+
     // Поиск связи между багажом и доставкой в базе данных
     var relation ds.DeliveryBaggage
-    if err := r.db.Where("baggage_id = ? AND delivery_id = ?", baggageID, deliveryID).First(&relation).Error; err != nil {
-        return errors.New("Relation not found")
+    var delivery ds.Delivery
+    if err := r.db.First(&delivery, deliveryID).Error; err != nil {
+        return errors.New("Delivery not found")
     }
 
-    // Удаление связи из базы данных
-    if err :=r.db.Delete(&relation).Error; err != nil {
-        return r.db.Exec("UPDATE deliveries SET delivery_status = ? WHERE delievry_id = ?", ds.DELIVERY_STATUS_REJECTED, deliveryID).Error;
+    if err := tx.Where("baggage_id = ? AND delivery_id = ?", baggageID, deliveryID).First(&relation).Error; err != nil {
+        tx.Rollback()
+        return errors.New("Relation not found")
     }
+    // Устанавливаем formation_date для доставки на текущую дату и время в часовом поясе "Europe/Moscow"
+    moscowLocation, err := time.LoadLocation("Europe/Moscow")
+    if err != nil {
+        return err
+    }   
+    // Сохраняем текущее значение времени как новую formation_date
+    currentTime := time.Now().In(moscowLocation)
+
+    // Удаление связи из базы данных
+    if err := tx.Delete(&relation).Error; err != nil {
+        tx.Rollback()
+        return errors.New("Relation not deleted")
+    }
+
+    // Обновляем formation_date для доставки на текущую дату и время
+    if err := tx.Model(&delivery).Update("formation_date", currentTime).Error; err != nil {
+        tx.Rollback()
+        return err
+    }
+
+    // Фиксируем транзакцию
+    tx.Commit()
 
     return nil
 }
+

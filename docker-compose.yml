@@ -13,7 +13,20 @@ services: # имеджи, которые запустятся по вашему 
       POSTGRES_USER: admin
       POSTGRES_DB: RIP
       POSTGRES_PASSWORD: qwerty
-
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ACCESS_KEY: yD8s9f2R1tU3qA7mP
+      MINIO_SECRET_KEY: X6bN1oY9zP4wG2cV5eF8hR2tA7mS3kL1
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:9000/
+    volumes:
+      - minio-data:/data
+    command: server /data
 volumes: # часть настроек для хранения данных
   postgresdb-data:
+    driver: local
+  minio-data:
     driver: local
