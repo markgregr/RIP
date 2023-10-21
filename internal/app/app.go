@@ -32,7 +32,6 @@ func New(ctx context.Context) (*Application, error) {
     if err != nil {
         return nil, err
     }
-
     // Инициализируйте и настройте объект Application
     app := &Application{
         Config: cfg,
@@ -56,7 +55,7 @@ func (app *Application) Run() {
         BaggageGroup.DELETE("/:baggage_id/delete", handler.DeleteBaggage) 
         BaggageGroup.POST("/create", handler.CreateBaggage)
         BaggageGroup.PUT("/:baggage_id/update", handler.UpdateBaggage) 
-        BaggageGroup.PUT("/:baggage_id/delivery/:delivery_id", handler.AddBaggageToDelivery) 
+        BaggageGroup.PUT("/:baggage_id/delivery", handler.AddBaggageToDelivery) 
         BaggageGroup.DELETE("/:baggage_id/delivery/:delivery_id/delete", handler.RemoveBaggageFromDelivery) 
     }
     
@@ -68,8 +67,15 @@ func (app *Application) Run() {
         DeliveryGroup.GET("/:id", handler.GetDeliveryByID)
         DeliveryGroup.DELETE("/:id/delete", handler.DeleteDelivery)
         DeliveryGroup.PUT("/:id/update", handler.UpdateDelivery)
+        DeliveryGroup.PUT("/:id/status/user", handler.UpdateDeliveryStatusForUser)  // Новый маршрут для обновления статуса доставки пользователем
+        DeliveryGroup.PUT("/:id/status/moderator", handler.UpdateDeliveryStatusForModerator)  // Новый маршрут для обновления статуса доставки модератором
     }
 
+
+    MinioClientGroup := r.Group("/minio")
+    {
+        MinioClientGroup.PUT("/:baggage_id",handler.AddBaggageImage)
+    }
     addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)
     r.Run(addr)
     log.Println("Server down")

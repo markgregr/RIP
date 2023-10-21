@@ -18,10 +18,11 @@ services: # имеджи, которые запустятся по вашему 
     image: minio/minio:latest
     ports:
       - "9000:9000"
+      - "9001:9001"
     environment:
-      MINIO_ACCESS_KEY: yD8s9f2R1tU3qA7mP
-      MINIO_SECRET_KEY: X6bN1oY9zP4wG2cV5eF8hR2tA7mS3kL1
-      MINIO_BROWSER_REDIRECT_URL: http://localhost:9000/
+      MINIO_ACCESS_KEY: markgregr
+      MINIO_SECRET_KEY: vfhr2310
+      MINIO_CONSOLE_ADDRESS: ":9001"
     volumes:
       - minio-data:/data
     command: server /data
