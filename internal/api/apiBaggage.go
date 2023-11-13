@@ -6,32 +6,40 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/markgregr/RIP/internal/app/ds"
+	"github.com/markgregr/RIP/internal/auth"
 )
 
 //методы для таблицы baggage
 func (h *Handler) GetBaggages(c *gin.Context) {
+    // Получение экземпляра singleton для аутентификации
+    authInstance := auth.GetAuthInstance()
     searchCode := c.DefaultQuery("searchCode", "")
-    baggages, err := h.Repo.GetBaggages(searchCode)
+    baggages, err := h.Repo.GetBaggages(searchCode, authInstance.UserID)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
     c.JSON(http.StatusOK, gin.H{"baggages": baggages})
 }
+
 func (h *Handler) GetBaggageByID(c *gin.Context) {
+    authInstance := auth.GetAuthInstance()
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
+        c.JSON(http.StatusBadRequest, gin.H{"error":err.Error()})
         return
     }
-    baggage, err := h.Repo.GetBaggageByID(baggageID)
+    baggage, err := h.Repo.GetBaggageByID(baggageID,authInstance.UserID)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
     c.JSON(http.StatusOK, baggage)
 }
+
 func (h *Handler) CreateBaggage(c *gin.Context) {
+    authInstance := auth.GetAuthInstance()
+
     searchCode := c.DefaultQuery("searchCode", "")
 	var baggage ds.Baggage
 	if err := c.BindJSON(&baggage); err != nil {
@@ -41,46 +49,48 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 
 	err := h.Repo.CreateBaggage(&baggage)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Получаем обновленный список багажей
-	baggages, err := h.Repo.GetBaggages(searchCode)
+	baggages, err := h.Repo.GetBaggages(searchCode,authInstance.UserID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Baggage created successfully", "baggages": baggages})
+	c.JSON(http.StatusOK, gin.H{"message": "Багаж создан успешно", "baggages": baggages})
 }
 func (h *Handler) DeleteBaggage(c *gin.Context) {
+    authInstance := auth.GetAuthInstance()
     searchCode := c.DefaultQuery("searchCode", "")
 	baggageID, err := strconv.Atoi(c.Param("baggage_id"))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	err = h.Repo.DeleteBaggage(baggageID)
+	err = h.Repo.DeleteBaggage(baggageID, authInstance.UserID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Получаем обновленный список багажей
-	baggages, err := h.Repo.GetBaggages(searchCode)
+	baggages, err := h.Repo.GetBaggages(searchCode,authInstance.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Baggage deleted successfully", "baggages": baggages})
+	c.JSON(http.StatusOK, gin.H{"message": "Багаж успешно удален", "baggages": baggages})
 }
 func (h *Handler) UpdateBaggage(c *gin.Context) {
+    authInstance := auth.GetAuthInstance()
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
@@ -93,75 +103,70 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
     // Попытка обновления багажа в репозитории
     err = h.Repo.UpdateBaggage(baggageID, &updatedBaggageRequest)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
     // Получаем обновленный объект багажа (map[string]interface{})
-    updatedBaggage, err := h.Repo.GetBaggageByID(baggageID)
+    updatedBaggage, err := h.Repo.GetBaggageByID(baggageID, authInstance.UserID)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"message": "Baggage updated successfully", "baggage": updatedBaggage})
+    c.JSON(http.StatusOK, gin.H{"message": "Багаж успешно обновлен", "baggage": updatedBaggage})
 }
 //м-м
 func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
+    authInstance := auth.GetAuthInstance()
     searchCode := c.DefaultQuery("searchCode", "")
     // Получаем параметры из URL
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid baggage_id"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
     // Попытка обновления связи между багажом и доставкой в репозитории
-    err = h.Repo.AddBaggageToDelivery(uint(baggageID), 1,1)
+    err = h.Repo.AddBaggageToDelivery(uint(baggageID), authInstance.UserID,1)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
     // Получаем обновленный список багажей
-	baggages, err := h.Repo.GetBaggages(searchCode)
+	baggages, err := h.Repo.GetBaggages(searchCode,authInstance.UserID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Baggage delivery update successfully", "baggages": baggages})
+	c.JSON(http.StatusOK, gin.H{"message": "Багаж успешно добавлен в доставку", "baggages": baggages})
 }
 
 func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
+    authInstance := auth.GetAuthInstance()
     searchCode := c.DefaultQuery("searchCode", "")
     var err error  // Объявляем переменную здесь
 
     // Получаем параметры из URL
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid baggage_id"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
-    deliveryID, err := strconv.Atoi(c.Param("delivery_id"))
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid delivery_id"})
-        return
-    }
-
     // Попытка удаления связи между багажом и доставкой в репозитории
-    err = h.Repo.RemoveBaggageFromDelivery(uint(baggageID), uint(deliveryID))  // Используем объявленную переменную err
+    err = h.Repo.RemoveBaggageFromDelivery(uint(baggageID), authInstance.UserID)  // Используем объявленную переменную err
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+    baggages, err := h.Repo.GetBaggages(searchCode, authInstance.UserID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    baggages, err := h.Repo.GetBaggages(searchCode)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal Server Error"})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"message": "Baggage removed from delivery successfully", "baggages": baggages})
+    c.JSON(http.StatusOK, gin.H{"message": "Багаж успешно удален из доставки", "baggages": baggages})
 }
 
 

@@ -3,6 +3,7 @@ package minioclient
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -38,14 +39,13 @@ func NewMinioClient() (*MinioClient, error) {
 func (mc *MinioClient) UploadServiceImage(baggageID int, imageBytes []byte, contentType string) (string, error) {
 	objectName := fmt.Sprintf("baggages/%d/image", baggageID)
 
-	// Используйте io.NopCloser вместо ioutil.NopCloser
 	reader := io.NopCloser(bytes.NewReader(imageBytes))
 
 	_, err := mc.Client.PutObject(context.TODO(), "images-bucket", objectName, reader, int64(len(imageBytes)), minio.PutObjectOptions{
 		ContentType: contentType,
 	})
 	if err != nil {
-		return "", err
+		return "", errors.New("ошибка загрузки изображения в минио")
 	}
 
 	// Формирование URL изображения
@@ -58,10 +58,7 @@ func (mc *MinioClient) RemoveServiceImage(baggageID int) error {
 	objectName := fmt.Sprintf("baggages/%d/image", baggageID)
 	err := mc.Client.RemoveObject(context.TODO(), "images-bucket", objectName, minio.RemoveObjectOptions{})
 	if err != nil {
-		fmt.Println("Failed to remove object from MinIO:", err)
-		// Обработка ошибки удаления изображения из MinIO
-		return err
+		return errors.New("не удалось удалить изображение из бакет")
 	}
-	fmt.Println("Object removed from MinIO successfully:", objectName)
 	return nil
 }

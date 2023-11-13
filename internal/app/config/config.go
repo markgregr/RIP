@@ -30,7 +30,7 @@ func NewConfig(ctx context.Context) (*Config, error) {
 
 	viper.SetConfigName(configName)
 	viper.SetConfigType("toml")
-	viper.AddConfigPath("config")
+	viper.AddConfigPath("backend/config")
 	viper.AddConfigPath(".")
 	viper.WatchConfig()
 

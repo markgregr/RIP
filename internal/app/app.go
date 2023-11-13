@@ -42,21 +42,24 @@ func New(ctx context.Context) (*Application, error) {
     return app, nil
 }
 
+
 // Run запускает приложение.
 func (app *Application) Run() {
+
     handler := api.NewHandler(app.Repository)
-    r := gin.Default()
+    r := gin.Default()  
 
     // Группа запросов для багажа
     BaggageGroup := r.Group("/baggage")
-    {
+    {   
         BaggageGroup.GET("/", handler.GetBaggages)
         BaggageGroup.GET("/:baggage_id", handler.GetBaggageByID) 
         BaggageGroup.DELETE("/:baggage_id/delete", handler.DeleteBaggage) 
         BaggageGroup.POST("/create", handler.CreateBaggage)
         BaggageGroup.PUT("/:baggage_id/update", handler.UpdateBaggage) 
-        BaggageGroup.PUT("/:baggage_id/delivery", handler.AddBaggageToDelivery) 
-        BaggageGroup.DELETE("/:baggage_id/delivery/:delivery_id/delete", handler.RemoveBaggageFromDelivery) 
+        BaggageGroup.POST("/:baggage_id/delivery", handler.AddBaggageToDelivery) 
+        BaggageGroup.DELETE("/:baggage_id/delivery/delete", handler.RemoveBaggageFromDelivery)
+        BaggageGroup.POST("/:baggage_id/image",handler.AddBaggageImage)
     }
     
 
@@ -69,12 +72,6 @@ func (app *Application) Run() {
         DeliveryGroup.PUT("/:id/update", handler.UpdateDelivery)
         DeliveryGroup.PUT("/:id/status/user", handler.UpdateDeliveryStatusForUser)  // Новый маршрут для обновления статуса доставки пользователем
         DeliveryGroup.PUT("/:id/status/moderator", handler.UpdateDeliveryStatusForModerator)  // Новый маршрут для обновления статуса доставки модератором
-    }
-
-
-    MinioClientGroup := r.Group("/minio")
-    {
-        MinioClientGroup.PUT("/:baggage_id",handler.AddBaggageImage)
     }
     addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)
     r.Run(addr)
