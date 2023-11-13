@@ -19,7 +19,7 @@ func (h *Handler) GetDeliveries(c *gin.Context) {
     deliveryStatus := c.DefaultQuery("deliveryStatus", "")
 
     // Выбор соответствующего метода репозитория в зависимости от роли пользователя
-    var deliveries map[string]interface{}
+    var deliveries []ds.DeliveryRequest
     var err error
     if authInstance.Role == "moderator" {
         // Получение доставок для модератора

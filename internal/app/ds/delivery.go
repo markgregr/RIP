@@ -12,3 +12,13 @@ type Delivery struct {
 	UserID         uint      `json:"user_id"`
 	ModeratorID    uint      `json:"moderator_id"`
 }
+
+type DeliveryRequest struct {
+	DeliveryID     uint      `json:"delivery_id"`
+	FlightNumber   string    `json:"flight_number"`
+	CreationDate   time.Time `json:"creation_date"`
+	FormationDate  time.Time `json:"formation_date"`
+	CompletionDate time.Time `json:"completion_date"`
+	DeliveryStatus string    `json:"delivery_status"`
+	FullName 	   string 	 `json:"full_name"`
+}

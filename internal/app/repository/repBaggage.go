@@ -16,7 +16,7 @@ func (r *Repository) GetBaggages(searchCode string, userID uint) (map[string]int
         Select("deliveries.delivery_id").
         Where("user_id = ? AND delivery_status = ?", userID, ds.DELIVERY_STATUS_DRAFT).
         Take(&deliveryID).Error; err != nil {
-        return nil, errors.New("ошибка нахождения delivery_id черновика")
+        //return nil, errors.New("ошибка нахождения delivery_id черновика")
     }
 
     var baggages []map[string]interface{}

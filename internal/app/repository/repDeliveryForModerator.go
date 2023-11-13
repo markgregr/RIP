@@ -9,7 +9,7 @@ import (
 )
 
 
-func (r *Repository) GetDeliveriesForModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, moderatorID uint) (map[string]interface{}, error) {
+func (r *Repository) GetDeliveriesForModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, moderatorID uint) ([]ds.DeliveryRequest, error) {
     searchFlightNumber = strings.ToUpper(searchFlightNumber + "%")
     deliveryStatus = strings.ToLower(deliveryStatus + "%")
 
@@ -25,7 +25,7 @@ func (r *Repository) GetDeliveriesForModerator(searchFlightNumber, startFormatio
     }
 
     // Выполнение запроса и сканирование результатов в структуру deliveries.
-    var deliveries map[string]interface{}
+    var deliveries []ds.DeliveryRequest
     if err := query.Scan(&deliveries).Error; err != nil {
         return nil, errors.New("ошибка получения доставок")
     }
@@ -92,7 +92,7 @@ func (r *Repository) UpdateDeliveryStatusForModerator(deliveryID int, moderatorI
 
 	// Проверяем, что текущий статус доставки - "в работе"
     if delivery.DeliveryStatus != ds.DELIVERY_STATUS_WORK {
-        return errors.New("текущий статус доставки уже в работе")
+        return errors.New("текущий статус доставки еще не в работе")
     }
 
 	// Проверяем, что новый статус является "завершен" или "отклонен"
