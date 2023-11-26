@@ -1,4 +1,4 @@
-package ds
+package model
 
 const (
 	BAGGAGE_STATUS_ACTIVE  = "активен"

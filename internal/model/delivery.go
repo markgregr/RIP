@@ -1,4 +1,4 @@
-package ds
+package model
 
 import "time"
 
@@ -21,4 +21,23 @@ type DeliveryRequest struct {
 	CompletionDate time.Time `json:"completion_date"`
 	DeliveryStatus string    `json:"delivery_status"`
 	FullName 	   string 	 `json:"full_name"`
+}
+
+type DeliveryGetResponse struct{
+	DeliveryID 	   uint      `json:"delivery_id"`
+	FlightNumber   string    `json:"flight_number"`
+	CreationDate   time.Time `json:"creation_date"`
+	FormationDate  time.Time `json:"formation_date"`
+	CompletionDate time.Time `json:"completion_date"`
+	DeliveryStatus string    `json:"delivery_status"`
+	FullName 	   string 	 `json:"full_name"`
+	Baggages       []Baggage `json:"baggages"`
+}
+
+type DeliveryUpdateFlightNumberRequest struct {
+	FlightNumber   string    `json:"flight_number"`
+}
+
+type DeliveryUpdateStatusRequest struct {
+	DeliveryStatus string    `json:"delivery_status"`
 }

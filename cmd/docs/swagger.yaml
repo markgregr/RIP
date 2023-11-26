@@ -1,0 +1,14 @@
+basePath: /
+host: http://localhost:8081
+info:
+  contact: {}
+  description: API server for BagTracker application
+  title: BagTracker RestAPI
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
