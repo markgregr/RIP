@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/markgregr/RIP/internal/auth"
 	"github.com/markgregr/RIP/internal/model"
 )
 
@@ -19,10 +18,20 @@ import (
 // @Failure 500 {object} model.BaggagesGetResponse "Ошибка сервера"
 // @Router /baggage [get]
 func (h *Handler) GetBaggages(c *gin.Context) {
-    authInstance := auth.GetAuthInstance()
+    ctxUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		return
+	}
+
+	userID, ok := ctxUserID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
+		return
+	}
     searchCode := c.DefaultQuery("searchCode", "")
 
-    baggages, err := h.UseCase.GetBaggages(searchCode, authInstance.UserID)
+    baggages, err := h.UseCase.GetBaggages(searchCode,userID)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -41,15 +50,24 @@ func (h *Handler) GetBaggages(c *gin.Context) {
 // @Failure 500 {object} model.Baggage "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id} [get]
 func (h *Handler) GetBaggageByID(c *gin.Context) {
-    authInstance := auth.GetAuthInstance()
+    ctxUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		return
+	}
 
+	userID, ok := ctxUserID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
+		return
+	}
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый ИД багажа"})
         return
     }
 
-    baggage, err := h.UseCase.GetBaggageByID(uint(baggageID),authInstance.UserID)
+    baggage, err := h.UseCase.GetBaggageByID(uint(baggageID), userID)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -69,7 +87,17 @@ func (h *Handler) GetBaggageByID(c *gin.Context) {
 // @Failure 500 {object} model.BaggagesGetResponse "Внутренняя ошибка сервера"
 // @Router /baggage/create [post]
 func (h *Handler) CreateBaggage(c *gin.Context) {
-    authInstance := auth.GetAuthInstance()
+    ctxUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		return
+	}
+
+	userID, ok := ctxUserID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
+		return
+	}
     searchCode := c.DefaultQuery("searchCode", "")
 
 	var baggage model.BaggageRequest
@@ -79,13 +107,13 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 		return
 	}
 
-	err := h.UseCase.CreateBaggage(authInstance.UserID, baggage)
+	err := h.UseCase.CreateBaggage(userID, baggage)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	baggages, err := h.UseCase.GetBaggages(searchCode,authInstance.UserID)
+	baggages, err := h.UseCase.GetBaggages(searchCode, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -105,7 +133,17 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 // @Failure 500 {object} model.BaggagesGetResponse "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/delete [delete]
 func (h *Handler) DeleteBaggage(c *gin.Context) {
-    authInstance := auth.GetAuthInstance()
+    ctxUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		return
+	}
+
+	userID, ok := ctxUserID.(uint)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
+		return
+	}
     searchCode := c.DefaultQuery("searchCode", "")
 
 	baggageID, err := strconv.Atoi(c.Param("baggage_id"))
@@ -114,13 +152,13 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 		return
 	}
 
-	err = h.UseCase.DeleteBaggage(uint(baggageID), authInstance.UserID)
+	err = h.UseCase.DeleteBaggage(uint(baggageID), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	baggages, err := h.UseCase.GetBaggages(searchCode,authInstance.UserID)
+	baggages, err := h.UseCase.GetBaggages(searchCode, userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -140,7 +178,17 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 // @Failure 500 {object} model.Baggage "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/update [put]
 func (h *Handler) UpdateBaggage(c *gin.Context) {
-    authInstance := auth.GetAuthInstance()
+    ctxUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		return
+	}
+
+	userID, ok := ctxUserID.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
+		return
+	}
 
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
@@ -154,13 +202,13 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
         return
     }
 
-    err = h.UseCase.UpdateBaggage(uint(baggageID),authInstance.UserID, baggage)
+    err = h.UseCase.UpdateBaggage(uint(baggageID),uint(userID), baggage)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    updatedBaggage, err := h.UseCase.GetBaggageByID(uint(baggageID), authInstance.UserID)
+    updatedBaggage, err := h.UseCase.GetBaggageByID(uint(baggageID), uint(userID))
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -180,7 +228,17 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
 // @Failure 500 {object} model.BaggagesGetResponse  "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/delivery [post]
 func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
-    authInstance := auth.GetAuthInstance()
+    ctxUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		return
+	}
+
+	userID, ok := ctxUserID.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
+		return
+	}
     searchCode := c.DefaultQuery("searchCode", "")
 
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
@@ -189,13 +247,13 @@ func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
         return
     }
 
-    err = h.UseCase.AddBaggageToDelivery(uint(baggageID), authInstance.UserID, 1)
+    err = h.UseCase.AddBaggageToDelivery(uint(baggageID), uint(userID), 1)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-	baggages, err := h.UseCase.GetBaggages(searchCode,authInstance.UserID)
+	baggages, err := h.UseCase.GetBaggages(searchCode, uint(userID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -215,7 +273,17 @@ func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
 // @Failure 500 {object} model.BaggagesGetResponse "Внутренняя ошибка сервера"
 // @Router /baggages/{baggage_id}/delivery [post]
 func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
-    authInstance := auth.GetAuthInstance()
+    ctxUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		return
+	}
+
+	userID, ok := ctxUserID.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
+		return
+	}
     searchCode := c.DefaultQuery("searchCode", "")
 
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
@@ -224,13 +292,13 @@ func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
         return
     }
    
-    err = h.UseCase.RemoveBaggageFromDelivery(uint(baggageID), authInstance.UserID)  
+    err = h.UseCase.RemoveBaggageFromDelivery(uint(baggageID), uint(userID))  
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    baggages, err := h.UseCase.GetBaggages(searchCode, authInstance.UserID)
+    baggages, err := h.UseCase.GetBaggages(searchCode, uint(userID))
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -252,7 +320,17 @@ func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
 // @Failure 500 {object} model.Baggage "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/image [post]
 func (h* Handler) AddBaggageImage(c* gin.Context) {
-    authInstance := auth.GetAuthInstance()
+    ctxUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		return
+	}
+
+	userID, ok := ctxUserID.(int)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
+		return
+	}
 
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
@@ -281,13 +359,13 @@ func (h* Handler) AddBaggageImage(c* gin.Context) {
 
 	contentType := image.Header.Get("Content-Type")
 
-    err = h.UseCase.AddBaggageImage(uint(baggageID), authInstance.UserID,imageBytes, contentType)
+    err = h.UseCase.AddBaggageImage(uint(baggageID), uint(userID),imageBytes, contentType)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    baggage, err := h.UseCase.GetBaggageByID(uint(baggageID),authInstance.UserID)
+    baggage, err := h.UseCase.GetBaggageByID(uint(baggageID),uint(userID))
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return

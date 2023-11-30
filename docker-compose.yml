@@ -26,8 +26,18 @@ services: # имеджи, которые запустятся по вашему 
     volumes:
       - minio-data:/data
     command: server /data
+  redis:
+    image: redis:latest #Ц383ОЕ 190
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass rip
+    volumes:
+      - redis-data:/data
 volumes: # часть настроек для хранения данных
   postgresdb-data:
     driver: local
   minio-data:
+    driver: local
+  redis-data:
     driver: local

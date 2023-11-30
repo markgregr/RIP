@@ -89,6 +89,26 @@ definitions:
       delivery_status:
         type: string
     type: object
+  model.User:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.UserLoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -537,4 +557,86 @@ paths:
       summary: Обновление статуса доставки для пользователя
       tags:
       - Доставка
+  /user/:
+    get:
+      description: Получение данных пользователя по его идентификатору
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить пользователя по идентификатору
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация пользователя и генерация JWT-токена
+      parameters:
+      - description: Данные для входа
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.UserLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный ответ
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Неверный запрос
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Вход пользователя
+      tags:
+      - Пользователь
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация нового пользователя с предоставленной информацией.
+      parameters:
+      - description: Пользовательский объект в формате JSON
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешно зарегистрированный пользователь
+          schema:
+            $ref: '#/definitions/model.User'
+      summary: Регистрация нового пользователя.
+      tags:
+      - Пользователь
 swagger: "2.0"
