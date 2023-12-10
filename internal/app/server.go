@@ -24,19 +24,19 @@ func (app *Application) Run() {
     // Группа запросов для багажа
     BaggageGroup := r.Group("/baggage")
     {   
-        BaggageGroup.GET("/", app.Handler.GetBaggages)
-        BaggageGroup.GET("/:baggage_id", app.Handler.GetBaggageByID) 
-        BaggageGroup.DELETE("/:baggage_id/delete", app.Handler.DeleteBaggage) 
-        BaggageGroup.POST("/create", app.Handler.CreateBaggage)
-        BaggageGroup.PUT("/:baggage_id/update", app.Handler.UpdateBaggage) 
-        BaggageGroup.POST("/:baggage_id/delivery",app.Handler.AddBaggageToDelivery).Use(middleware.AuthenticateAndRefresh(app.Repository.GetRedisClient(), []byte("SuperSecretKey"), app.Repository))
-        BaggageGroup.DELETE("/:baggage_id/delivery/delete", app.Handler.RemoveBaggageFromDelivery).Use(middleware.AuthenticateAndRefresh(app.Repository.GetRedisClient(), []byte("SuperSecretKey"), app.Repository))
-        BaggageGroup.POST("/:baggage_id/image", app.Handler.AddBaggageImage)
+        BaggageGroup.GET("/", middleware.Guest(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.GetBaggages)
+        BaggageGroup.GET("/:baggage_id", middleware.Guest(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.GetBaggageByID)
+        BaggageGroup.DELETE("/:baggage_id/delete", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.DeleteBaggage)
+        BaggageGroup.POST("/create", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.CreateBaggage)
+        BaggageGroup.PUT("/:baggage_id/update", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.UpdateBaggage)
+        BaggageGroup.POST("/:baggage_id/delivery", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.AddBaggageToDelivery)
+        BaggageGroup.DELETE("/:baggage_id/delivery/delete", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.RemoveBaggageFromDelivery)
+        BaggageGroup.POST("/:baggage_id/image", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.AddBaggageImage)
     }
     
 
     // Группа запросов для доставки
-    DeliveryGroup := r.Group("/delivery").Use(middleware.AuthenticateAndRefresh(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository))
+    DeliveryGroup := r.Group("/delivery").Use(middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository))
     {
         DeliveryGroup.GET("/", app.Handler.GetDeliveries)
         DeliveryGroup.GET("/:id", app.Handler.GetDeliveryByID)
@@ -51,6 +51,8 @@ func (app *Application) Run() {
         UserGroup.GET("/", app.Handler.GetUserByID)
         UserGroup.POST("/register", app.Handler.Register)
         UserGroup.POST("/login", app.Handler.Login)
+        UserGroup.POST("/logout", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.Logout)
+        UserGroup.POST("/refreshtoken", app.Handler.RefreshToken)
     }
     addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)
     r.Run(addr)

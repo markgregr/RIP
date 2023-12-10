@@ -117,3 +117,12 @@ func (uc *UseCase) LogoutUser(userID uint) error{
 
 	return nil
 }
+
+func (uc *UseCase) RefreshToken(refreshToken string) (model.TokenPair, error){
+	tokenPair, err := middleware.RefreshToken(refreshToken, uc.Repository, []byte("RefreshSecretKey"))
+	if err != nil {
+		return model.TokenPair{}, err
+	}
+
+	return tokenPair, nil
+}

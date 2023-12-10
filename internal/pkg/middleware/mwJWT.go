@@ -15,7 +15,7 @@ func GenerateJWTAccessToken(userID uint) (string, error) {
 
 	claims := token.Claims.(jwt.MapClaims)
 	claims["userID"] = userID
-	claims["exp"] = time.Now().Add(time.Minute*2).Unix() 
+	claims["exp"] = time.Now().Add(time.Hour*2).Unix() 
 
 	accessToken, err := token.SignedString([]byte("AccessSecretKey"))
 	if err != nil {
@@ -25,7 +25,7 @@ func GenerateJWTAccessToken(userID uint) (string, error) {
 	return accessToken, nil
 }
 
-func GenerateJWTRefreshToken() (string, error) {
+func GenerateJWTRefreshToken(userID uint) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	tokenBytes := make([]byte, 32)
@@ -35,6 +35,7 @@ func GenerateJWTRefreshToken() (string, error) {
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
+	claims["userID"] = userID
 	claims["exp"] = time.Now().Add(time.Hour * 24 * 30).Unix() 
 
 	refreshToken, err := token.SignedString([]byte("RefreshSecretKey"))
@@ -45,14 +46,13 @@ func GenerateJWTRefreshToken() (string, error) {
 	return refreshToken, nil
 }
 
-
 func GenerateJWTTokenPair(userID uint) (model.TokenPair, error) {
 	accessToken, err := GenerateJWTAccessToken(userID)
 	if err != nil {
 	   return model.TokenPair{}, err
 	}
  
-	refreshToken, err := GenerateJWTRefreshToken()
+	refreshToken, err := GenerateJWTRefreshToken(userID)
 	if err != nil {
 	   return model.TokenPair{}, err
 	}
@@ -63,30 +63,13 @@ func GenerateJWTTokenPair(userID uint) (model.TokenPair, error) {
 	}, nil
  }
 
- func ParseAndValidateToken(tokenString string, jwtSecretKey []byte) (uint, error) {
-    token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+ func ParseAndValidateToken(tokenStr string, jwtSecretKey []byte) (uint, error) {
+    token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
         return jwtSecretKey, nil
     })
-
-    if err != nil {
-        if ve, ok := err.(*jwt.ValidationError); ok && ve.Errors == jwt.ValidationErrorExpired {
-            // Токен истек, но мы все равно можем получить userID
-            claims, ok := token.Claims.(jwt.MapClaims)
-            if !ok {
-                return 0, errors.New("ошибка возвращения claims")
-            }
-
-            userIDFloat, ok := claims["userID"].(float64)
-            if !ok {
-                return 0, errors.New("ошибка перевода типа userID")
-            }
-
-            userID := uint(userIDFloat)
-            return userID, nil
-        }
-        return 0, err
-    }
-
+	if err != nil{
+		return 0, errors.New("ошибка парсинга акцесс токена")
+	}
     claims, ok := token.Claims.(jwt.MapClaims)
     if !ok {
         return 0, errors.New("ошибка возвращения claims")
@@ -102,16 +85,23 @@ func GenerateJWTTokenPair(userID uint) (model.TokenPair, error) {
     return userID, nil
 }
 
+func RefreshToken(refreshToken string, r *repository.Repository, jwtSecretKey[]byte) (model.TokenPair, error) {
+	userID, err := ParseAndValidateToken(refreshToken, jwtSecretKey)
+	if err != nil {
+		return model.TokenPair{}, err
+	}
 
-func RefreshTokens(oldToken string, userID uint, r *repository.Repository, jwtSecretKey []byte) (model.TokenPair, error) {
 	newTokens, err := GenerateJWTTokenPair(userID)
 	if err != nil {
 		return model.TokenPair{}, err
 	}
-	if err := r.DeleteJWTTokenPair(userID); err != nil {
+
+	if err = r.DeleteJWTTokenPair(userID); err != nil {
 		return model.TokenPair{}, err
 	}
-	if err := r.SaveJWTTokenPair(userID, newTokens.AccessToken, newTokens.RefreshToken); err != nil {
+
+	if err = r.SaveJWTTokenPair(userID, newTokens.AccessToken, newTokens.RefreshToken); 
+	err != nil {
 		return model.TokenPair{}, err
 	}
 

@@ -15,13 +15,9 @@ func ModeratorOnly(r *repository.Repository, c *gin.Context) bool {
 		c.Abort()
 	}
 
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		c.Abort()
-	}
+	userID := ctxUserID.(uint)
 
-	role, err := r.GetUserRoleByID(uint(userID))
+	role, err := r.GetUserRoleByID(userID)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		c.Abort()

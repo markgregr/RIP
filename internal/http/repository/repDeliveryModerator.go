@@ -14,7 +14,7 @@ func (r *Repository) GetDeliveriesModerator(searchFlightNumber, startFormationDa
         Joins("JOIN delivery_baggages ON deliveries.delivery_id = delivery_baggages.delivery_id").
         Joins("JOIN baggages ON baggages.baggage_id = delivery_baggages.baggage_id").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
-        Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.moderator_id = ? AND deliveries.delivery_status != ?", deliveryStatus, searchFlightNumber, moderatorID, model.DELIVERY_STATUS_DELETED)
+        Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.delivery_status != ?", deliveryStatus, searchFlightNumber, model.DELIVERY_STATUS_DELETED)
     
     if startFormationDate != "" && endFormationDate != "" {
         query = query.Where("deliveries.formation_date BETWEEN ? AND ?", startFormationDate, endFormationDate)
@@ -35,7 +35,7 @@ func (r *Repository) GetDeliveryByIDModerator(deliveryID, moderatorID uint) (mod
         Table("deliveries").
         Select("deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
-        Where("deliveries.delivery_status != ? AND deliveries.delivery_id = ? AND deliveries.moderator_id = ?", model.DELIVERY_STATUS_DELETED, deliveryID, moderatorID).
+        Where("deliveries.delivery_status != ? AND deliveries.delivery_id = ?", model.DELIVERY_STATUS_DELETED, deliveryID).
         Scan(&delivery).Error; err != nil {
         return model.DeliveryGetResponse{}, errors.New("ошибка получения доставки по ИД")
     }

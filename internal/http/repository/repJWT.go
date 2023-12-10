@@ -21,15 +21,13 @@ func (r *Repository) SaveJWTTokenPair(userID uint, accessToken, refreshToken str
 	if err != nil {
 		return err
 	}
-
+	
 	err = r.rd.HSet(tokenFolderKey, refreshTokenKey, refreshToken).Err()
 	if err != nil {
-		// If saving Refresh Token fails, remove the saved Access Token
 		r.rd.HDel(tokenFolderKey, accessTokenKey)
 		return err
 	}
 
-	// Set expiration for the token folder
 	err = r.rd.Expire(tokenFolderKey, expiration).Err()
 	if err != nil {
 		return err

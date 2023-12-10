@@ -11,7 +11,7 @@ type BaggageUseCase interface {
 }
 
 func (uc *UseCase) GetBaggages(searchCode string, userID uint) (model.BaggagesGetResponse, error) {
-	if userID <= 0 {
+	if userID < 0 {
 		return model.BaggagesGetResponse{}, errors.New("недопустимый ИД пользователя")
 	}
 
@@ -29,7 +29,7 @@ func (uc *UseCase) GetBaggageByID(baggageID, userID uint) (model.Baggage, error)
 	if baggageID <= 0 {
 		return model.Baggage{}, errors.New("недопустимый ИД багажа")
 	}
-	if userID <= 0 {
+	if userID < 0 {
 		return model.Baggage{}, errors.New("недопустимый ИД пользователя")
 	}
 

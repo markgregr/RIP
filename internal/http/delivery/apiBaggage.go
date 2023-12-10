@@ -20,15 +20,10 @@ import (
 func (h *Handler) GetBaggages(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте пп"})
 		return
 	}
-
-	userID, ok := ctxUserID.(uint)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
     searchCode := c.DefaultQuery("searchCode", "")
 
     baggages, err := h.UseCase.GetBaggages(searchCode,userID)
@@ -55,12 +50,8 @@ func (h *Handler) GetBaggageByID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
+	userID := ctxUserID.(uint)
 
-	userID, ok := ctxUserID.(uint)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый ИД багажа"})
@@ -82,6 +73,7 @@ func (h *Handler) GetBaggageByID(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param searchCode query string false "Код багажа" Format(email)
+// @Param baggage body model.BaggageRequest true "Пользовательский объект в формате JSON"
 // @Success 200 {object} model.BaggagesGetResponse "Список багажей"
 // @Failure 400 {object} model.BaggagesGetResponse "Некорректный запрос"
 // @Failure 500 {object} model.BaggagesGetResponse "Внутренняя ошибка сервера"
@@ -92,12 +84,8 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
+	userID := ctxUserID.(uint)
 
-	userID, ok := ctxUserID.(uint)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
     searchCode := c.DefaultQuery("searchCode", "")
 
 	var baggage model.BaggageRequest
@@ -138,12 +126,8 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := ctxUserID.(uint)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
+	
     searchCode := c.DefaultQuery("searchCode", "")
 
 	baggageID, err := strconv.Atoi(c.Param("baggage_id"))
@@ -183,12 +167,7 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
 
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {
@@ -228,17 +207,13 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
 // @Failure 500 {object} model.BaggagesGetResponse  "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/delivery [post]
 func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
-    ctxUserID, exists := c.Get("userID")
+	ctxUserID, exists := c.Get("userID")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
+	userID := ctxUserID.(uint)
 
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
     searchCode := c.DefaultQuery("searchCode", "")
 
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
@@ -278,12 +253,8 @@ func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
+	userID := ctxUserID.(uint)
 
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
     searchCode := c.DefaultQuery("searchCode", "")
 
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
@@ -325,12 +296,7 @@ func (h* Handler) AddBaggageImage(c* gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
 
     baggageID, err := strconv.Atoi(c.Param("baggage_id"))
     if err != nil {

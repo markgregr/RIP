@@ -70,6 +70,15 @@ const docTemplate = `{
                         "description": "Код багажа",
                         "name": "searchCode",
                         "in": "query"
+                    },
+                    {
+                        "description": "Пользовательский объект в формате JSON",
+                        "name": "baggage",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.BaggageRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -416,7 +425,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Список багажей",
+                        "description": "Список доставок",
                         "schema": {
                             "$ref": "#/definitions/model.DeliveryRequest"
                         }
@@ -692,8 +701,10 @@ const docTemplate = `{
                     "200": {
                         "description": "Успешный ответ",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.User"
+                            }
                         }
                     },
                     "400": {
@@ -772,6 +783,88 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/logout": {
+            "post": {
+                "description": "Выход пользователя из системы и удаление токена из куков",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пользователь"
+                ],
+                "summary": "Выход пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/user/refreshtoken": {
+            "post": {
+                "description": "Обновление пары токенов",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Пользователь"
+                ],
+                "summary": "Обновление токенов",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный запрос",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/user/register": {
             "post": {
                 "description": "Регистрация нового пользователя с предоставленной информацией.",
@@ -792,7 +885,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.User"
+                            "$ref": "#/definitions/model.UserRegisterRequest"
                         }
                     }
                 ],
@@ -800,7 +893,10 @@ const docTemplate = `{
                     "201": {
                         "description": "Успешно зарегистрированный пользователь",
                         "schema": {
-                            "$ref": "#/definitions/model.User"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.User"
+                            }
                         }
                     }
                 }
@@ -841,6 +937,39 @@ const docTemplate = `{
                 "photo": {
                     "type": "string",
                     "example": "http://example.com/baggage.jpg"
+                },
+                "size": {
+                    "type": "string",
+                    "example": "large"
+                },
+                "weight": {
+                    "type": "number",
+                    "example": 23.5
+                }
+            }
+        },
+        "model.BaggageRequest": {
+            "type": "object",
+            "properties": {
+                "airline": {
+                    "type": "string",
+                    "example": "AirlineX"
+                },
+                "baggage_code": {
+                    "type": "string",
+                    "example": "ABC123"
+                },
+                "baggage_type": {
+                    "type": "string",
+                    "example": "suitcase"
+                },
+                "owner_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "pasport_details": {
+                    "type": "string",
+                    "example": "123456789"
                 },
                 "size": {
                     "type": "string",
@@ -941,6 +1070,17 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Role": {
+            "type": "string",
+            "enum": [
+                "пользователь",
+                "модератор"
+            ],
+            "x-enum-varnames": [
+                "UserRole",
+                "ModeratorRole"
+            ]
+        },
         "model.User": {
             "type": "object",
             "properties": {
@@ -954,7 +1094,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "string"
+                    "$ref": "#/definitions/model.Role"
                 },
                 "user_id": {
                     "type": "integer"
@@ -965,6 +1105,20 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserRegisterRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
                     "type": "string"
                 },
                 "password": {

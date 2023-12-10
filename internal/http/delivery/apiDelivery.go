@@ -18,7 +18,7 @@ import (
 // @Param startFormationDate query string false "Начало даты формирования" Format(email)
 // @Param endFormationDate query string false "Конец даты формирования" Format(email)
 // @Param deliveryStatus query string false "Статус доставки" Format(email)
-// @Success 200 {object} model.DeliveryRequest "Список багажей"
+// @Success 200 {object} model.DeliveryRequest "Список доставок"
 // @Failure 500 {object} model.DeliveryRequest "Ошибка сервера"
 // @Router /delivery [get]
 func (h *Handler) GetDeliveries(c *gin.Context) {
@@ -27,12 +27,7 @@ func (h *Handler) GetDeliveries(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
 
     searchFlightNumber := c.DefaultQuery("searchFlightNumber", "")
     startFormationDate := c.DefaultQuery("startFormationDate", "")
@@ -43,9 +38,9 @@ func (h *Handler) GetDeliveries(c *gin.Context) {
     var err error
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        deliveries, err = h.UseCase.GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, uint(userID))
+        deliveries, err = h.UseCase.GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, userID)
     } else {
-        deliveries, err = h.UseCase.GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, uint(userID))
+        deliveries, err = h.UseCase.GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, userID)
     }
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -71,12 +66,7 @@ func (h *Handler) GetDeliveryByID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
 
     deliveryID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
@@ -87,9 +77,9 @@ func (h *Handler) GetDeliveryByID(c *gin.Context) {
     var delivery model.DeliveryGetResponse
 
      if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        delivery, err = h.UseCase.GetDeliveryByIDModerator(uint(deliveryID), uint(userID))
+        delivery, err = h.UseCase.GetDeliveryByIDModerator(uint(deliveryID), userID)
     } else {
-        delivery, err = h.UseCase.GetDeliveryByIDUser(uint(deliveryID), uint(userID))
+        delivery, err = h.UseCase.GetDeliveryByIDUser(uint(deliveryID), userID)
     }
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -119,12 +109,7 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
 
     searchFlightNumber := c.DefaultQuery("searchFlightNumber", "")
     startFormationDate := c.DefaultQuery("startFormationDate", "")
@@ -141,13 +126,13 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
         return
     }
 
-    err = h.UseCase.DeleteDeliveryUser(uint(deliveryID), uint(userID))
+    err = h.UseCase.DeleteDeliveryUser(uint(deliveryID), userID)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 
-    deliveries, err := h.UseCase.GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, uint(userID))
+    deliveries, err := h.UseCase.GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, userID)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -173,12 +158,7 @@ func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
 
     deliveryID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
@@ -193,13 +173,13 @@ func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
     }
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        err = h.UseCase.UpdateFlightNumberModerator(uint(deliveryID), uint(userID), flightNumber)
+        err = h.UseCase.UpdateFlightNumberModerator(uint(deliveryID), userID, flightNumber)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
 
-        delivery, err := h.UseCase.GetDeliveryByIDModerator(uint(deliveryID), uint(userID))
+        delivery, err := h.UseCase.GetDeliveryByIDModerator(uint(deliveryID), userID)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -207,13 +187,13 @@ func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
 
         c.JSON(http.StatusOK, gin.H{"delivery": delivery})
     } else {
-        err = h.UseCase.UpdateFlightNumberUser(uint(deliveryID), uint(userID), flightNumber)
+        err = h.UseCase.UpdateFlightNumberUser(uint(deliveryID), userID, flightNumber)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
 
-        delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), uint(userID))
+        delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), userID)
         if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -239,12 +219,8 @@ func (h *Handler) UpdateDeliveryStatusUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
+	userID := ctxUserID.(uint)
 
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
     deliveryID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "недоупстимый ИД доставки"})
@@ -255,13 +231,13 @@ func (h *Handler) UpdateDeliveryStatusUser(c *gin.Context) {
         c.JSON(http.StatusUnauthorized, gin.H{"error": "данный запрос доступен только пользователю"})
         return
     } else {
-        err = h.UseCase.UpdateDeliveryStatusUser(uint(deliveryID), uint(userID))
+        err = h.UseCase.UpdateDeliveryStatusUser(uint(deliveryID), userID)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
 
-        delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), uint(userID))
+        delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), userID)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
@@ -288,12 +264,7 @@ func (h *Handler) UpdateDeliveryStatusModerator(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := ctxUserID.(int)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
+	userID := ctxUserID.(uint)
 
     deliveryID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
@@ -308,13 +279,13 @@ func (h *Handler) UpdateDeliveryStatusModerator(c *gin.Context) {
     }
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        err = h.UseCase.UpdateDeliveryStatusModerator(uint(deliveryID), uint(userID), deliveryStatus)
+        err = h.UseCase.UpdateDeliveryStatusModerator(uint(deliveryID), userID, deliveryStatus)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
             return
         }
 
-        delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), uint(userID))
+        delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), userID)
         if err != nil {
             c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return

@@ -13,7 +13,7 @@ import (
 // @Tags Пользователь
 // @Accept json
 // @Produce json
-// @Param user body model.User true "Пользовательский объект в формате JSON"
+// @Param user body model.UserRegisterRequest true "Пользовательский объект в формате JSON"
 // @Success 201 {object} []model.User "Успешно зарегистрированный пользователь"
 // @Router /user/register [post]
 func (h *Handler) Register(c *gin.Context) {
@@ -61,7 +61,9 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 	c.SetCookie("access_token", tokenPair.AccessToken, 3600, "/", "localhost", false, true)
-	c.JSON(http.StatusOK, gin.H{"token": tokenPair.AccessToken})
+	c.SetCookie("refresh_token", tokenPair.RefreshToken, 3600, "/", "localhost", false, true)
+	c.JSON(http.StatusOK, gin.H{"access_token": tokenPair.AccessToken, "refresh_token": tokenPair.RefreshToken})
+
 }
 
 // @BasePath /api/user
@@ -109,13 +111,8 @@ func (h *Handler) Logout(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
-
-	userID, ok := cUserID.(uint)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при преобразовании идентификатора пользователя"})
-		return
-	}
-
+	userID := cUserID.(uint)
+	
 	err := h.UseCase.LogoutUser(uint(userID))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -123,6 +120,34 @@ func (h *Handler) Logout(c *gin.Context) {
 	}
 
 	c.SetCookie("access_token", "", -1, "/", "localhost", false, true)
+	c.SetCookie("refresh_token", "", -1, "/", "localhost", false, true)
 
 	c.JSON(http.StatusOK, gin.H{"message": "Пользователь успешно вышел из системы"})
+}
+
+// @BasePath /user/refreshtoken
+// @Summary Обновление токенов
+// @Description Обновление пары токенов
+// @Tags Пользователь
+// @Produce json
+// @Success 200 {object} map[string]string "Успешный ответ"
+// @Failure 400 {object} map[string]string "Неверный запрос"
+// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Router /user/refreshtoken [post]
+func (h *Handler) RefreshToken(c *gin.Context) {
+	var refreshToken model.RefreshToken
+	if err := c.ShouldBindJSON(&refreshToken); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	tokenPair, err := h.UseCase.RefreshToken(refreshToken.RefreshToken)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.SetCookie("access_token", tokenPair.AccessToken, 3600, "/", "localhost", false, true)
+	c.SetCookie("refresh_token", tokenPair.RefreshToken, 3600, "/", "localhost", false, true)
+	c.JSON(http.StatusOK, gin.H{"access_token": tokenPair.AccessToken, "refresh_token": tokenPair.RefreshToken})
+
 }
