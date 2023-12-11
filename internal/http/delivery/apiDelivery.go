@@ -122,7 +122,7 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
     }
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "данный запрос недоступен для модератора"})
+        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос недоступен для модератора"})
         return
     }
 
@@ -228,7 +228,7 @@ func (h *Handler) UpdateDeliveryStatusUser(c *gin.Context) {
     }
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c) {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "данный запрос доступен только пользователю"})
+        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос доступен только пользователю"})
         return
     } else {
         err = h.UseCase.UpdateDeliveryStatusUser(uint(deliveryID), userID)
@@ -293,7 +293,7 @@ func (h *Handler) UpdateDeliveryStatusModerator(c *gin.Context) {
 
         c.JSON(http.StatusOK, gin.H{"delivery": delivery})
     } else {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "данный запрос доступен только модератору"})
+        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос доступен только модератору"})
         return
     }
 }

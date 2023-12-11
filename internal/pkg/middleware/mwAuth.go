@@ -41,7 +41,6 @@ func Guest(redisClient *redis.Client, jwtSecretKey []byte, r *repository.Reposit
 	return func(ctx *gin.Context) {
 		accessTokenStr := ctx.GetHeader("Authorization")
 		if accessTokenStr == "" {
-			log.Println("1")
 			ctx.Set("userID", uint(0))
 			return
 		}
@@ -49,7 +48,6 @@ func Guest(redisClient *redis.Client, jwtSecretKey []byte, r *repository.Reposit
 		userID, err := ParseAndValidateToken(accessTokenStr, jwtSecretKey)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			log.Println("2")
 			ctx.Set("userID", uint(0))
 			ctx.Abort()
 			return 
@@ -57,7 +55,6 @@ func Guest(redisClient *redis.Client, jwtSecretKey []byte, r *repository.Reposit
 
 		if err := r.CheckTokenInRedis(userID, accessTokenStr); err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			log.Println("3")
 			ctx.Set("userID", uint(0))
 			ctx.Abort()
 			return
