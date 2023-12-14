@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/markgregr/RIP/docs"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
@@ -12,7 +13,8 @@ import (
 
 // Run запускает приложение.
 func (app *Application) Run() {
-    r := gin.Default()  
+    r := gin.Default()
+    r.Use(cors.Default())  
     // Это нужно для автоматического создания папки "docs" в вашем проекте
     docs.SwaggerInfo.Title = "BagTracker RestAPI"
     docs.SwaggerInfo.Description = "API server for BagTracker application"
@@ -33,7 +35,6 @@ func (app *Application) Run() {
         BaggageGroup.POST("/:baggage_id/image",app.Handler.AddBaggageImage)
     }
     
-
     // Группа запросов для доставки
     DeliveryGroup := r.Group("/delivery")
     {
