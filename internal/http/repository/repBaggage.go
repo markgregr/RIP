@@ -91,16 +91,16 @@ func (r *Repository) AddBaggageToDelivery(baggageID, userID, moderatorID uint) e
 
 	if err := r.db.Table("baggages").
     Where("baggage_id = ? AND baggage_status = ?", baggageID, model.BAGGAGE_STATUS_ACTIVE).
-    First(baggage).Error; 
+    First(&baggage).Error; 
     err != nil {
 		return errors.New("багаж не найден или удален")
 	}
 
     var delivery model.Delivery
 
-    if err := r.db.Table("delivery").
+    if err := r.db.Table("deliveries").
     Where("delivery_status = ? AND user_id = ?", model.DELIVERY_STATUS_DRAFT, userID).
-    Last(delivery).Error; 
+    Last(&delivery).Error; 
     err != nil {
         delivery = model.Delivery{
             DeliveryStatus: model.DELIVERY_STATUS_DRAFT,
@@ -109,8 +109,8 @@ func (r *Repository) AddBaggageToDelivery(baggageID, userID, moderatorID uint) e
             ModeratorID:    moderatorID,
         }
 
-        if err := r.db.Table("delivery").
-        Create(delivery).Error;
+        if err := r.db.Table("deliveries").
+        Create(&delivery).Error;
         err != nil {
             return errors.New("ошибка создания доставки со статусом черновик")
         }
@@ -121,8 +121,8 @@ func (r *Repository) AddBaggageToDelivery(baggageID, userID, moderatorID uint) e
         DeliveryID: delivery.DeliveryID,
     }
 
-    if err := r.db.Table("deliveries_baggages").
-    Create(deliveryBaggage).Error;
+    if err := r.db.Table("delivery_baggages").
+    Create(&deliveryBaggage).Error;
     err != nil {
 		return errors.New("ошибка при создании связи между доставкой и багажом")
 	}
@@ -135,13 +135,13 @@ func (r *Repository) RemoveBaggageFromDelivery(baggageID, userID uint) error {
 
     if err := r.db.Joins("JOIN deliveries ON delivery_baggages.delivery_id = deliveries.delivery_id").
         Where("delivery_baggages.baggage_id = ? AND deliveries.user_id = ? AND deliveries.delivery_status = ?", baggageID, userID, model.DELIVERY_STATUS_DRAFT).
-        First(deliveryBaggage).Error; 
+        First(&deliveryBaggage).Error; 
         err != nil {
         return errors.New("багаж не принадлежит пользователю или находится не в статусе черновик")
     }
 
-    if err := r.db.Table("deliveries_baggages").
-    Delete(deliveryBaggage).Error; 
+    if err := r.db.Table("delivery_baggages").
+    Delete(&deliveryBaggage).Error; 
     err != nil {
         return errors.New("ошибка удаления связи между доставкой и багажом")
     }

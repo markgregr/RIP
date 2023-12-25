@@ -32,7 +32,7 @@ func (h *Handler) GetBaggages(c *gin.Context) {
         return
     }
     
-    c.JSON(http.StatusOK, gin.H{"baggages": baggages})
+    c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
 }
 
 // @Summary Получение багажа по ID
@@ -107,7 +107,7 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"baggages": baggages})
+    c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
 }
 
 // @Summary Удаление багажа
@@ -148,7 +148,7 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"baggages": baggages})
+    c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
 }
 
 // @Summary Обновление информации о багаже
@@ -234,7 +234,7 @@ func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"baggages": baggages})
+    c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
 }
 
 // @Summary Удаление багажа из доставки
@@ -275,7 +275,7 @@ func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusOK, gin.H{"baggages": baggages})
+    c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
 }
 
 // @Summary Добавление изображения к багажу

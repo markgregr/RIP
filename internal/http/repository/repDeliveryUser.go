@@ -10,8 +10,6 @@ import (
 func (r *Repository) GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, userID uint) ([]model.DeliveryRequest, error) {
     query := r.db.Table("deliveries").
         Select("DISTINCT deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
-        Joins("JOIN delivery_baggages ON deliveries.delivery_id = delivery_baggages.delivery_id").
-        Joins("JOIN baggages ON baggages.baggage_id = delivery_baggages.baggage_id").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
         Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.user_id = ? AND deliveries.delivery_status != ?", deliveryStatus, searchFlightNumber, userID, model.DELIVERY_STATUS_DELETED)
     
@@ -20,7 +18,7 @@ func (r *Repository) GetDeliveriesUser(searchFlightNumber, startFormationDate, e
     }
 
     var deliveries []model.DeliveryRequest
-    if err := query.Scan(&deliveries).Error; err != nil {
+    if err := query.Find(&deliveries).Error; err != nil {
         return nil, errors.New("ошибка получения доставок")
     }
 
@@ -42,8 +40,8 @@ func (r *Repository) GetDeliveryByIDUser(deliveryID, userID uint) (model.Deliver
     var baggages []model.Baggage
     if err := r.db.
         Table("baggages").
-        Joins("JOIN deliveries_baggages ON baggages.baggage_id = deliveries_baggages.baggage_id").
-        Where("deliveries_baggages.delivery_id = ?", delivery.DeliveryID).
+        Joins("JOIN delivery_baggages ON baggages.baggage_id = delivery_baggages.baggage_id").
+        Where("delivery_baggages.delivery_id = ?", delivery.DeliveryID).
         Scan(&baggages).Error; err != nil {
         return model.DeliveryGetResponse{}, errors.New("ошибка получения багажей для доставки")
     }

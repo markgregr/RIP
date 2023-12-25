@@ -13,32 +13,32 @@ type UserUseCase interface {
 	GetUserById(userID uint) (model.User, error)
 }
 
-func (uc *UseCase) RegisterUser(requestUser model.UserRegisterRequest) error {
+func (uc *UseCase) RegisterUser(requestUser model.UserRegisterRequest) (model.UserLoginResponse, error) {
 	if requestUser.FullName == "" {
-		return errors.New("ФИО должно быть заполнен")
+		return model.UserLoginResponse{}, errors.New("ФИО должно быть заполнен")
 	}
 	if requestUser.Email == "" {
-		return errors.New("почта должна быть заполнена")
+		return model.UserLoginResponse{}, errors.New("почта должна быть заполнена")
 	}
 	if requestUser.Password == "" {
-		return errors.New("пароль должен быть заполнен")
+		return model.UserLoginResponse{}, errors.New("пароль должен быть заполнен")
 	}
 	if len(requestUser.Password) < 8 || len(requestUser.Password) > 20 {
-		return errors.New("пароль должен содержать от 8 до 20 символов")
+		return model.UserLoginResponse{}, errors.New("пароль должен содержать от 8 до 20 символов")
 	}
 
 	candidate, err := uc.Repository.GetByEmail(requestUser.Email)
 	if err != nil {
-		return err
+		return model.UserLoginResponse{}, err
 	}
 
 	if candidate.Email == requestUser.Email {
-		return errors.New("такой пользователь уже существует")
+		return model.UserLoginResponse{}, errors.New("такой пользователь уже существует")
 	}
 
 	requestUser.Password, err = middleware.HashPassword(requestUser.Password)
 	if err != nil {
-		return err
+		return model.UserLoginResponse{}, err
 	}
 
 	user := model.User{
@@ -50,41 +50,63 @@ func (uc *UseCase) RegisterUser(requestUser model.UserRegisterRequest) error {
 
 	err = uc.Repository.CreateUser(user)
 	if err != nil {
-		return err
+		return model.UserLoginResponse{}, err
+	}
+	user, err = uc.Repository.GetByEmail(requestUser.Email)
+	if err != nil {
+		return model.UserLoginResponse{}, err
 	}
 
-	return nil
+	tokenPair, err := middleware.GenerateJWTTokenPair(uint(user.UserID))
+	if err != nil {
+		return model.UserLoginResponse{}, err
+	}
+
+	err = uc.Repository.SaveJWTTokenPair(uint(user.UserID), tokenPair.AccessToken, tokenPair.RefreshToken)
+	if err != nil {
+		return model.UserLoginResponse{}, err
+	}
+	response := model.UserLoginResponse{
+		AccessToken: tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+		FullName: user.FullName,
+	}
+	return response, nil
 }
 
-func (uc *UseCase) LoginUser(requestUser model.UserLoginRequest) (model.TokenPair, error) {
+func (uc *UseCase) LoginUser(requestUser model.UserLoginRequest) (model.UserLoginResponse, error) {
 	if requestUser.Email == "" {
-		return model.TokenPair{}, errors.New("заполните почту")
+		return model.UserLoginResponse{}, errors.New("заполните почту")
 	}
 
 	if requestUser.Password == "" {
-		return model.TokenPair{}, errors.New("заполните пароль")
+		return model.UserLoginResponse{}, errors.New("заполните пароль")
 	}
 
 	candidate, err := uc.Repository.GetByEmail(requestUser.Email)
 	if err != nil {
-		return model.TokenPair{}, err
+		return model.UserLoginResponse{}, err
 	}
 
-	if ok := middleware.CheckPasswordHash(requestUser.Password, candidate.Password); !ok {
-		return model.TokenPair{}, err
+	if ok, err := middleware.CheckPasswordHash(requestUser.Password, candidate.Password); !ok {
+		return model.UserLoginResponse{}, err
 	}
 
 	tokenPair, err := middleware.GenerateJWTTokenPair(uint(candidate.UserID))
 	if err != nil {
-		return model.TokenPair{}, err
+		return model.UserLoginResponse{}, err
 	}
 
 	err = uc.Repository.SaveJWTTokenPair(uint(candidate.UserID), tokenPair.AccessToken, tokenPair.RefreshToken)
 	if err != nil {
-		return model.TokenPair{}, err
+		return model.UserLoginResponse{}, err
 	}
-
-	return tokenPair, nil
+	response := model.UserLoginResponse{
+		AccessToken: tokenPair.AccessToken,
+		RefreshToken: tokenPair.RefreshToken,
+		FullName: candidate.FullName,
+	}
+	return response, nil
 }
 
 func (uc *UseCase) GetUserByID(userID uint) (model.User, error) {
