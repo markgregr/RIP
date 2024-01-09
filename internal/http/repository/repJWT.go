@@ -8,10 +8,9 @@ import (
 const (
 	tokenFolderPrefix = "user_tokens:"
 	accessTokenKey    = "access_token"
-	refreshTokenKey   = "refresh_token"
 )
 
-func (r *Repository) SaveJWTTokenPair(userID uint, accessToken, refreshToken string) error {
+func (r *Repository) SaveJWTToken(userID uint, accessToken string) error {
 	expiration := 7 * 24 * time.Hour
 
 	userIDStr := strconv.FormatUint(uint64(userID), 10)
@@ -22,12 +21,6 @@ func (r *Repository) SaveJWTTokenPair(userID uint, accessToken, refreshToken str
 		return err
 	}
 	
-	err = r.rd.HSet(tokenFolderKey, refreshTokenKey, refreshToken).Err()
-	if err != nil {
-		r.rd.HDel(tokenFolderKey, accessTokenKey)
-		return err
-	}
-
 	err = r.rd.Expire(tokenFolderKey, expiration).Err()
 	if err != nil {
 		return err
@@ -36,7 +29,7 @@ func (r *Repository) SaveJWTTokenPair(userID uint, accessToken, refreshToken str
 	return nil
 }
 
-func (r *Repository) DeleteJWTTokenPair(userID uint) error {
+func (r *Repository) DeleteJWTToken(userID uint) error {
 	userIDStr := strconv.FormatUint(uint64(userID), 10)
 	tokenFolderKey := tokenFolderPrefix + userIDStr
 

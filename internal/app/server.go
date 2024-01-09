@@ -52,7 +52,6 @@ func (app *Application) Run() {
         UserGroup.POST("/register", app.Handler.Register)
         UserGroup.POST("/login", app.Handler.Login)
         UserGroup.POST("/logout", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.Logout)
-        UserGroup.POST("/refreshtoken", app.Handler.RefreshToken)
     }
     addr := fmt.Sprintf("%s:%d", app.Config.ServiceHost, app.Config.ServicePort)
     r.Run(addr)

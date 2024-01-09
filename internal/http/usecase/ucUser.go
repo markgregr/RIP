@@ -57,19 +57,19 @@ func (uc *UseCase) RegisterUser(requestUser model.UserRegisterRequest) (model.Us
 		return model.UserLoginResponse{}, err
 	}
 
-	tokenPair, err := middleware.GenerateJWTTokenPair(uint(user.UserID))
+	token, err := middleware.GenerateJWTAccessToken(uint(user.UserID))
 	if err != nil {
 		return model.UserLoginResponse{}, err
 	}
 
-	err = uc.Repository.SaveJWTTokenPair(uint(user.UserID), tokenPair.AccessToken, tokenPair.RefreshToken)
+	err = uc.Repository.SaveJWTToken(uint(user.UserID), token.AccessToken)
 	if err != nil {
 		return model.UserLoginResponse{}, err
 	}
 	response := model.UserLoginResponse{
-		AccessToken: tokenPair.AccessToken,
-		RefreshToken: tokenPair.RefreshToken,
+		AccessToken: token.AccessToken,
 		FullName: user.FullName,
+		Role: user.Role,
 	}
 	return response, nil
 }
@@ -92,19 +92,19 @@ func (uc *UseCase) LoginUser(requestUser model.UserLoginRequest) (model.UserLogi
 		return model.UserLoginResponse{}, err
 	}
 
-	tokenPair, err := middleware.GenerateJWTTokenPair(uint(candidate.UserID))
+	token, err := middleware.GenerateJWTAccessToken(uint(candidate.UserID))
 	if err != nil {
 		return model.UserLoginResponse{}, err
 	}
 
-	err = uc.Repository.SaveJWTTokenPair(uint(candidate.UserID), tokenPair.AccessToken, tokenPair.RefreshToken)
+	err = uc.Repository.SaveJWTToken(uint(candidate.UserID), token.AccessToken)
 	if err != nil {
 		return model.UserLoginResponse{}, err
 	}
 	response := model.UserLoginResponse{
-		AccessToken: tokenPair.AccessToken,
-		RefreshToken: tokenPair.RefreshToken,
+		AccessToken: token.AccessToken,
 		FullName: candidate.FullName,
+		Role: candidate.Role,
 	}
 	return response, nil
 }
@@ -132,19 +132,10 @@ func (uc *UseCase) GetUsers() ([]model.User, error) {
 }
 
 func (uc *UseCase) LogoutUser(userID uint) error{
-	err := uc.Repository.DeleteJWTTokenPair(userID)
+	err := uc.Repository.DeleteJWTToken(userID)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func (uc *UseCase) RefreshToken(refreshToken string) (model.TokenPair, error){
-	tokenPair, err := middleware.RefreshToken(refreshToken, uc.Repository, []byte("RefreshSecretKey"))
-	if err != nil {
-		return model.TokenPair{}, err
-	}
-
-	return tokenPair, nil
 }

@@ -17,7 +17,7 @@ type UserLoginRequest struct {
 	Password string `json:"password"`
 }
 type UserLoginResponse struct {
-	AccessToken  string `json:"access_token"`
-	RefreshToken string `json:"refresh_token"`
-	FullName     string `json:"full_name"`
+	AccessToken string `json:"access_token"`
+	FullName    string `json:"full_name"`
+	Role        Role   `json:"role"`
 }
