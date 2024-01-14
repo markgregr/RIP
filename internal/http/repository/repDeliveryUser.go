@@ -41,9 +41,10 @@ func (r *Repository) GetDeliveryByIDUser(deliveryID, userID uint) (model.Deliver
         Select("deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
         Where("deliveries.delivery_status != ? AND deliveries.delivery_id = ? AND deliveries.user_id = ?", model.DELIVERY_STATUS_DELETED, deliveryID, userID).
-        Scan(&delivery).Error; err != nil {
+        First(&delivery).Error; err != nil {
         return model.DeliveryGetResponse{}, errors.New("ошибка получения доставки по ИД")
     }
+    
 
     var baggages []model.Baggage
     if err := r.db.
@@ -62,10 +63,10 @@ func (r *Repository) GetDeliveryByIDUser(deliveryID, userID uint) (model.Deliver
 func (r *Repository) DeleteDeliveryUser(deliveryID, userID uint) error {
     var delivery model.Delivery
     if err := r.db.Table("deliveries").
-        Where("delivery_id = ? AND user_id = ?", deliveryID, userID).
+        Where("delivery_id = ? AND user_id = ? AND delviery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
         First(&delivery).
         Error; err != nil {
-        return errors.New("доставка не найдена или не принадлежит указанному пользователю")
+        return errors.New("доставка не найдена или не принадлежит указанному пользователю или не находится в статусе черновик")
     }
 
     tx := r.db.Begin()
@@ -87,7 +88,7 @@ func (r *Repository) DeleteDeliveryUser(deliveryID, userID uint) error {
 func (r *Repository) UpdateFlightNumberUser(deliveryID uint, userID uint, flightNumber model.DeliveryUpdateFlightNumberRequest) error {
     var delivery model.Delivery
     if err := r.db.Table("deliveries").
-        Where("delivery_id = ? AND user_id = ?", deliveryID, userID).
+        Where("delivery_id = ? AND user_id = ? AND delivery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
         First(&delivery).
         Error; err != nil {
         return errors.New("доставка не найдена или не принадлежит указанному пользователю")

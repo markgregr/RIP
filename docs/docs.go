@@ -58,6 +58,11 @@ const docTemplate = `{
         },
         "/baggage/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создает новый багаж с предоставленными данными",
                 "consumes": [
                     "application/json"
@@ -85,13 +90,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.BaggageRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -171,6 +169,11 @@ const docTemplate = `{
         },
         "/baggage/{baggage_id}/delete": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаляет багаж по его ID",
                 "produces": [
                     "application/json"
@@ -193,13 +196,6 @@ const docTemplate = `{
                         "description": "Код багажа",
                         "name": "searchCode",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -238,6 +234,11 @@ const docTemplate = `{
         },
         "/baggage/{baggage_id}/delivery": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Добавляет багаж к доставке по его ID",
                 "produces": [
                     "application/json"
@@ -252,13 +253,6 @@ const docTemplate = `{
                         "description": "ID багажа",
                         "name": "baggage_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     },
                     {
@@ -297,6 +291,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаляет багаж из доставки по его ID",
                 "produces": [
                     "application/json"
@@ -319,13 +318,6 @@ const docTemplate = `{
                         "description": "Код багажа",
                         "name": "searchCode",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -358,6 +350,11 @@ const docTemplate = `{
         },
         "/baggage/{baggage_id}/image": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Добавляет изображение к багажу по его ID",
                 "consumes": [
                     "multipart/form-data"
@@ -382,13 +379,6 @@ const docTemplate = `{
                         "description": "Изображение багажа",
                         "name": "image",
                         "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -428,6 +418,11 @@ const docTemplate = `{
         },
         "/baggage/{baggage_id}/update": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновляет информацию о багаже по его ID",
                 "consumes": [
                     "application/json"
@@ -445,13 +440,6 @@ const docTemplate = `{
                         "description": "ID багажа",
                         "name": "baggage_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -491,6 +479,11 @@ const docTemplate = `{
         },
         "/delivery": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает список всех не удаленных доставок",
                 "produces": [
                     "application/json"
@@ -527,13 +520,6 @@ const docTemplate = `{
                         "description": "Статус доставки",
                         "name": "deliveryStatus",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -566,6 +552,11 @@ const docTemplate = `{
         },
         "/delivery/{delivery_id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает информацию о доставке по её идентификатору",
                 "produces": [
                     "application/json"
@@ -578,15 +569,8 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -620,6 +604,11 @@ const docTemplate = `{
         },
         "/delivery/{delivery_id}/delete": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаляет доставку по её идентификатору",
                 "produces": [
                     "application/json"
@@ -632,7 +621,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
                         "required": true
                     },
@@ -663,13 +652,6 @@ const docTemplate = `{
                         "description": "Статус доставки",
                         "name": "deliveryStatus",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -702,6 +684,11 @@ const docTemplate = `{
         },
         "/delivery/{delivery_id}/status/moderator": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновляет статус доставки для модератора по идентификатору доставки",
                 "produces": [
                     "application/json"
@@ -714,7 +701,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
                         "required": true
                     },
@@ -726,13 +713,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.DeliveryUpdateStatusRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -765,6 +745,11 @@ const docTemplate = `{
         },
         "/delivery/{delivery_id}/status/user": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновляет статус доставки для пользователя по идентификатору доставки",
                 "produces": [
                     "application/json"
@@ -777,15 +762,8 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -819,6 +797,11 @@ const docTemplate = `{
         },
         "/delivery/{delivery_id}/update": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновляет номер рейса для доставки по её идентификатору",
                 "produces": [
                     "application/json"
@@ -831,7 +814,7 @@ const docTemplate = `{
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
                         "required": true
                     },
@@ -843,13 +826,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.DeliveryUpdateFlightNumberRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -928,6 +904,11 @@ const docTemplate = `{
         },
         "/user/logout": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Выход пользователя из системы и удаление токена из куков",
                 "produces": [
                     "application/json"
@@ -936,15 +917,6 @@ const docTemplate = `{
                     "Пользователь"
                 ],
                 "summary": "Выход пользователя",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Успешный ответ",
@@ -953,21 +925,15 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Неверный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "string"
                         }
                     }
                 }
@@ -1245,17 +1211,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "http://localhost:8081",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "BagTracker RestAPI",
+	Description:      "API server for BagTracker application",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

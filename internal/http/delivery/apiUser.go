@@ -65,10 +65,10 @@ func (h *Handler) Login(c *gin.Context) {
 // @Description Выход пользователя из системы и удаление токена из куков
 // @Tags Пользователь
 // @Produce json
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {string} string "Успешный ответ"
-// @Failure 400 {object} map[string]string "Неверный запрос"
-// @Failure 500 {object} map[string]string "Внутренняя ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /user/logout [post]
 func (h *Handler) Logout(c *gin.Context) {
 	cUserID, exists := c.Get("userID")

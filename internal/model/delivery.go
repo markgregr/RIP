@@ -10,7 +10,7 @@ type Delivery struct {
 	CompletionDate *time.Time `json:"completion_date"`
 	DeliveryStatus string    `json:"delivery_status"`
 	UserID         uint      `json:"user_id"`
-	ModeratorID    uint      `gorm:"foreignkey:delivery_id" json:"moderator_id"`
+	ModeratorID    *uint      `gorm:"foreignkey:delivery_id" json:"moderator_id"`
 }
 
 type DeliveryRequest struct {

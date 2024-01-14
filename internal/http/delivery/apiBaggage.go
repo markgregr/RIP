@@ -76,12 +76,12 @@ func (h *Handler) GetBaggageByID(c *gin.Context) {
 // @Produce json
 // @Param searchCode query string false "Код багажа" Format(email)
 // @Param baggage body model.BaggageRequest true "Пользовательский объект в формате JSON"
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.BaggagesGetResponse "Список багажей"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /baggage/create [post]
 func (h *Handler) CreateBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -126,12 +126,12 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
 // @Param searchCode query string false "Код багажа" Format(email)
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.BaggagesGetResponse "Список багажей"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /baggage/{baggage_id}/delete [delete]
 func (h *Handler) DeleteBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -175,12 +175,12 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.Baggage "Информация о багаже"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /baggage/{baggage_id}/update [put]
 func (h *Handler) UpdateBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -227,12 +227,12 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
 // @Tags Багаж
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
-// @Param Authorization header string true "Токен авторизации"
 // @Param searchCode query string false "Код багажа" Format(email)
 // @Success 200 {object} model.BaggagesGetResponse  "Список багажей"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /baggage/{baggage_id}/delivery [post]
 func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
 	ctxUserID, exists := c.Get("userID")
@@ -271,11 +271,11 @@ func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
 // @Param searchCode query string false "Код багажа" Format(email)
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.BaggagesGetResponse "Список багажей"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /baggage/{baggage_id}/delivery [delete]
 func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -315,12 +315,12 @@ func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
 // @Param image formData file true "Изображение багажа"
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.Baggage "Информация о багаже с изображением"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /baggage/{baggage_id}/image [post]
 func (h* Handler) AddBaggageImage(c* gin.Context) {
     ctxUserID, exists := c.Get("userID")

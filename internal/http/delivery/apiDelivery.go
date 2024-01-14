@@ -18,11 +18,11 @@ import (
 // @Param startFormationDate query string false "Начало даты формирования" Format(email)
 // @Param endFormationDate query string false "Конец даты формирования" Format(email)
 // @Param deliveryStatus query string false "Статус доставки" Format(email)
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryRequest "Список доставок"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /delivery [get]
 func (h *Handler) GetDeliveries(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -58,12 +58,12 @@ func (h *Handler) GetDeliveries(c *gin.Context) {
 // @Description Возвращает информацию о доставке по её идентификатору
 // @Tags Доставка
 // @Produce json
-// @Param id path int true "Идентификатор доставки"
-// @Param Authorization header string true "Токен авторизации"
+// @Param delivery_id path int true "Идентификатор доставки"
 // @Success 200 {object} model.DeliveryGetResponse "Информация о доставке"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /delivery/{delivery_id} [get]
 func (h *Handler) GetDeliveryByID(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -99,16 +99,16 @@ func (h *Handler) GetDeliveryByID(c *gin.Context) {
 // @Description Удаляет доставку по её идентификатору
 // @Tags Доставка
 // @Produce json
-// @Param id path int true "Идентификатор доставки"
+// @Param delivery_id path int true "Идентификатор доставки"
 // @Param searchFlightNumber query string false "Номер рейса" Format(email)
 // @Param startFormationDate query string false "Начало даты формирования" Format(email)
 // @Param endFormationDate query string false "Конец даты формирования" Format(email)
 // @Param deliveryStatus query string false "Статус доставки" Format(email)
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryRequest "Список багажей"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /delivery/{delivery_id}/delete [delete]
 func (h *Handler) DeleteDelivery(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -160,13 +160,13 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
 // @Description Обновляет номер рейса для доставки по её идентификатору
 // @Tags Доставка
 // @Produce json
-// @Param id path int true "Идентификатор доставки"
+// @Param delivery_id path int true "Идентификатор доставки"
 // @Param flightNumber body model.DeliveryUpdateFlightNumberRequest true "Новый номер рейса"
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryGetResponse "Информация о доставке"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /delivery/{delivery_id}/update [put]
 func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -224,12 +224,12 @@ func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
 // @Description Обновляет статус доставки для пользователя по идентификатору доставки
 // @Tags Доставка
 // @Produce json
-// @Param id path int true "Идентификатор доставки"
-// @Param Authorization header string true "Токен авторизации"
+// @Param delivery_id path int true "Идентификатор доставки"
 // @Success 200 {object} model.DeliveryGetResponse "Информация о доставке"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /delivery/{delivery_id}/status/user [put]
 func (h *Handler) UpdateDeliveryStatusUser(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
@@ -282,13 +282,13 @@ func (h *Handler) UpdateDeliveryStatusUser(c *gin.Context) {
 // @Description Обновляет статус доставки для модератора по идентификатору доставки
 // @Tags Доставка
 // @Produce json
-// @Param id path int true "Идентификатор доставки"
+// @Param delivery_id path int true "Идентификатор доставки"
 // @Param deliveryStatus body model.DeliveryUpdateStatusRequest true "Новый статус доставки"
-// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryGetResponse "Информация о доставке"
 // @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Security ApiKeyAuth
 // @Router /delivery/{delivery_id}/status/moderator [put]
 func (h *Handler) UpdateDeliveryStatusModerator(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")

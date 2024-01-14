@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   model.Baggage:
     properties:
@@ -151,8 +152,12 @@ definitions:
       password:
         type: string
     type: object
+host: http://localhost:8081
 info:
   contact: {}
+  description: API server for BagTracker application
+  title: BagTracker RestAPI
+  version: "1.0"
 paths:
   /baggage:
     get:
@@ -222,11 +227,6 @@ paths:
         in: query
         name: searchCode
         type: string
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -250,6 +250,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Удаление багажа
       tags:
       - Багаж
@@ -267,11 +269,6 @@ paths:
         in: query
         name: searchCode
         type: string
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -291,6 +288,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Удаление багажа из доставки
       tags:
       - Багаж
@@ -302,11 +301,6 @@ paths:
         name: baggage_id
         required: true
         type: integer
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: Код багажа
         format: email
         in: query
@@ -331,6 +325,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Добавление багажа к доставке
       tags:
       - Багаж
@@ -350,11 +346,6 @@ paths:
         name: image
         required: true
         type: file
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -378,6 +369,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Добавление изображения к багажу
       tags:
       - Багаж
@@ -392,11 +385,6 @@ paths:
         name: baggage_id
         required: true
         type: integer
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -420,6 +408,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Обновление информации о багаже
       tags:
       - Багаж
@@ -440,11 +430,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.BaggageRequest'
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -468,6 +453,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Создание нового багажа
       tags:
       - Багаж
@@ -495,11 +482,6 @@ paths:
         in: query
         name: deliveryStatus
         type: string
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -519,6 +501,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Получение списка доставок
       tags:
       - Доставка
@@ -528,14 +512,9 @@ paths:
       parameters:
       - description: Идентификатор доставки
         in: path
-        name: id
+        name: delivery_id
         required: true
         type: integer
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -555,6 +534,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Получение доставки по идентификатору
       tags:
       - Доставка
@@ -564,7 +545,7 @@ paths:
       parameters:
       - description: Идентификатор доставки
         in: path
-        name: id
+        name: delivery_id
         required: true
         type: integer
       - description: Номер рейса
@@ -587,11 +568,6 @@ paths:
         in: query
         name: deliveryStatus
         type: string
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -611,6 +587,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Удаление доставки
       tags:
       - Доставка
@@ -620,7 +598,7 @@ paths:
       parameters:
       - description: Идентификатор доставки
         in: path
-        name: id
+        name: delivery_id
         required: true
         type: integer
       - description: Новый статус доставки
@@ -629,11 +607,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DeliveryUpdateStatusRequest'
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -653,6 +626,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Обновление статуса доставки для модератора
       tags:
       - Доставка
@@ -662,14 +637,9 @@ paths:
       parameters:
       - description: Идентификатор доставки
         in: path
-        name: id
+        name: delivery_id
         required: true
         type: integer
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -689,6 +659,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Обновление статуса доставки для пользователя
       tags:
       - Доставка
@@ -698,7 +670,7 @@ paths:
       parameters:
       - description: Идентификатор доставки
         in: path
-        name: id
+        name: delivery_id
         required: true
         type: integer
       - description: Новый номер рейса
@@ -707,11 +679,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DeliveryUpdateFlightNumberRequest'
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -731,6 +698,8 @@ paths:
           description: Внутренняя ошибка сервера
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Обновление номера рейса доставки
       tags:
       - Доставка
@@ -767,12 +736,6 @@ paths:
   /user/logout:
     post:
       description: Выход пользователя из системы и удаление токена из куков
-      parameters:
-      - description: Токен авторизации
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -781,17 +744,15 @@ paths:
           schema:
             type: string
         "400":
-          description: Неверный запрос
+          description: Обработанная ошибка сервера
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
+      security:
+      - ApiKeyAuth: []
       summary: Выход пользователя
       tags:
       - Пользователь
@@ -825,4 +786,9 @@ paths:
       summary: Регистрация нового пользователя.
       tags:
       - Пользователь
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

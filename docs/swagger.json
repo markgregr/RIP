@@ -1,8 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "API server for BagTracker application",
+        "title": "BagTracker RestAPI",
+        "contact": {},
+        "version": "1.0"
     },
+    "host": "http://localhost:8081",
+    "basePath": "/",
     "paths": {
         "/baggage": {
             "get": {
@@ -47,6 +52,11 @@
         },
         "/baggage/create": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Создает новый багаж с предоставленными данными",
                 "consumes": [
                     "application/json"
@@ -74,13 +84,6 @@
                         "schema": {
                             "$ref": "#/definitions/model.BaggageRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -160,6 +163,11 @@
         },
         "/baggage/{baggage_id}/delete": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаляет багаж по его ID",
                 "produces": [
                     "application/json"
@@ -182,13 +190,6 @@
                         "description": "Код багажа",
                         "name": "searchCode",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -227,6 +228,11 @@
         },
         "/baggage/{baggage_id}/delivery": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Добавляет багаж к доставке по его ID",
                 "produces": [
                     "application/json"
@@ -241,13 +247,6 @@
                         "description": "ID багажа",
                         "name": "baggage_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     },
                     {
@@ -286,6 +285,11 @@
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаляет багаж из доставки по его ID",
                 "produces": [
                     "application/json"
@@ -308,13 +312,6 @@
                         "description": "Код багажа",
                         "name": "searchCode",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -347,6 +344,11 @@
         },
         "/baggage/{baggage_id}/image": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Добавляет изображение к багажу по его ID",
                 "consumes": [
                     "multipart/form-data"
@@ -371,13 +373,6 @@
                         "description": "Изображение багажа",
                         "name": "image",
                         "in": "formData",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -417,6 +412,11 @@
         },
         "/baggage/{baggage_id}/update": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновляет информацию о багаже по его ID",
                 "consumes": [
                     "application/json"
@@ -434,13 +434,6 @@
                         "description": "ID багажа",
                         "name": "baggage_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -480,6 +473,11 @@
         },
         "/delivery": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает список всех не удаленных доставок",
                 "produces": [
                     "application/json"
@@ -516,13 +514,6 @@
                         "description": "Статус доставки",
                         "name": "deliveryStatus",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -555,6 +546,11 @@
         },
         "/delivery/{delivery_id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Возвращает информацию о доставке по её идентификатору",
                 "produces": [
                     "application/json"
@@ -567,15 +563,8 @@
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -609,6 +598,11 @@
         },
         "/delivery/{delivery_id}/delete": {
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Удаляет доставку по её идентификатору",
                 "produces": [
                     "application/json"
@@ -621,7 +615,7 @@
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
                         "required": true
                     },
@@ -652,13 +646,6 @@
                         "description": "Статус доставки",
                         "name": "deliveryStatus",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -691,6 +678,11 @@
         },
         "/delivery/{delivery_id}/status/moderator": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновляет статус доставки для модератора по идентификатору доставки",
                 "produces": [
                     "application/json"
@@ -703,7 +695,7 @@
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
                         "required": true
                     },
@@ -715,13 +707,6 @@
                         "schema": {
                             "$ref": "#/definitions/model.DeliveryUpdateStatusRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -754,6 +739,11 @@
         },
         "/delivery/{delivery_id}/status/user": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновляет статус доставки для пользователя по идентификатору доставки",
                 "produces": [
                     "application/json"
@@ -766,15 +756,8 @@
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -808,6 +791,11 @@
         },
         "/delivery/{delivery_id}/update": {
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Обновляет номер рейса для доставки по её идентификатору",
                 "produces": [
                     "application/json"
@@ -820,7 +808,7 @@
                     {
                         "type": "integer",
                         "description": "Идентификатор доставки",
-                        "name": "id",
+                        "name": "delivery_id",
                         "in": "path",
                         "required": true
                     },
@@ -832,13 +820,6 @@
                         "schema": {
                             "$ref": "#/definitions/model.DeliveryUpdateFlightNumberRequest"
                         }
-                    },
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -917,6 +898,11 @@
         },
         "/user/logout": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Выход пользователя из системы и удаление токена из куков",
                 "produces": [
                     "application/json"
@@ -925,15 +911,6 @@
                     "Пользователь"
                 ],
                 "summary": "Выход пользователя",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Токен авторизации",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Успешный ответ",
@@ -942,21 +919,15 @@
                         }
                     },
                     "400": {
-                        "description": "Неверный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "string"
                         }
                     }
                 }
@@ -1233,6 +1204,13 @@
                     "type": "string"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

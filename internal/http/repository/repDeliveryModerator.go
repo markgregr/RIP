@@ -17,7 +17,7 @@ func (r *Repository) GetDeliveriesModerator(searchFlightNumber, startFormationDa
     query := r.db.Table("deliveries").
         Select("DISTINCT deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
-        Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.delivery_status != ?", deliveryStatus, searchFlightNumber, model.DELIVERY_STATUS_DELETED)
+        Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.delivery_status != ? AND deliveries.delivery_status !=", deliveryStatus, searchFlightNumber, model.DELIVERY_STATUS_DELETED, model.DELIVERY_STATUS_DRAFT)
     
     if startFormationDate != "" && endFormationDate != "" {
         query = query.Where("deliveries.formation_date BETWEEN ? AND ?", startFormationDate, endFormationDate)
@@ -39,8 +39,8 @@ func (r *Repository) GetDeliveryByIDModerator(deliveryID uint) (model.DeliveryGe
         Table("deliveries").
         Select("deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
-        Where("deliveries.delivery_status != ? AND deliveries.delivery_id = ?", model.DELIVERY_STATUS_DELETED, deliveryID).
-        Scan(&delivery).Error; err != nil {
+        Where("deliveries.delivery_status != ? AND deliveries.delivery_status != ? AND deliveries.delivery_id = ?", model.DELIVERY_STATUS_DELETED, model.DELIVERY_STATUS_DRAFT, deliveryID).
+        First(&delivery).Error; err != nil {
         return model.DeliveryGetResponse{}, errors.New("ошибка получения доставки по ИД")
     }
 
@@ -68,7 +68,7 @@ func (r *Repository) UpdateDeliveryStatusModerator(deliveryID, moderatorID uint,
     }
 
     delivery.DeliveryStatus = deliveryStatus.DeliveryStatus
-    delivery.ModeratorID = moderatorID
+    delivery.ModeratorID = &moderatorID
     currentTime := time.Now()
 	delivery.FormationDate = &currentTime
 
