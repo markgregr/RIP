@@ -50,7 +50,7 @@ func (r *Repository) GetDeliveryByIDUser(deliveryID, userID uint) (model.Deliver
     if err := r.db.
         Table("baggages").
         Joins("JOIN delivery_baggages ON baggages.baggage_id = delivery_baggages.baggage_id").
-        Where("delivery_baggages.delivery_id = ?", delivery.DeliveryID).
+        Where("delivery_baggages.delivery_id = ? AND baggages.baggage_status != ?", delivery.DeliveryID, model.BAGGAGE_STATUS_DELETED).
         Scan(&baggages).Error; err != nil {
         return model.DeliveryGetResponse{}, errors.New("ошибка получения багажей для доставки")
     }
@@ -108,7 +108,7 @@ func (r *Repository) UpdateDeliveryStatusUser(deliveryID, userID uint) error {
     var delivery model.Delivery
     if err := r.db.Table("deliveries").
         Joins("JOIN delivery_baggages ON delivery_baggages.delivery_id = deliveries.delivery_id").
-        Where("deliveries.delivery_id = ? AND deliveries.user_id = ? AND deliveries.delivery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
+        Where("deliveries.delivery_id = ? AND deliveries.user_id = ? AND deliveries.delivery_status = ? AND deliveries.Flight_number != ", deliveryID, userID, model.DELIVERY_STATUS_DRAFT, nil).
         First(&delivery).
         Error; err != nil {
         return errors.New("доставка не найдена, или не принадлежит указанному пользователю, или не имеет статус черновик или не имеет багажей")
