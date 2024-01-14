@@ -18,13 +18,16 @@ import (
 // @Param startFormationDate query string false "Начало даты формирования" Format(email)
 // @Param endFormationDate query string false "Конец даты формирования" Format(email)
 // @Param deliveryStatus query string false "Статус доставки" Format(email)
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryRequest "Список доставок"
-// @Failure 500 {object} model.DeliveryRequest "Ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Router /delivery [get]
 func (h *Handler) GetDeliveries(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -38,12 +41,12 @@ func (h *Handler) GetDeliveries(c *gin.Context) {
     var err error
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        deliveries, err = h.UseCase.GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, userID)
+        deliveries, err = h.UseCase.GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus)  
     } else {
         deliveries, err = h.UseCase.GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, userID)
     }
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
@@ -56,19 +59,21 @@ func (h *Handler) GetDeliveries(c *gin.Context) {
 // @Tags Доставка
 // @Produce json
 // @Param id path int true "Идентификатор доставки"
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryGetResponse "Информация о доставке"
-// @Failure 400 {object} model.DeliveryGetResponse "Недопустимый идентификатор доставки"
-// @Failure 500 {object} model.DeliveryGetResponse "Ошибка сервера"
-// @Router /delivery/{id} [get]
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /delivery/{delivery_id} [get]
 func (h *Handler) GetDeliveryByID(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
 
-    deliveryID, err := strconv.Atoi(c.Param("id"))
+    deliveryID, err := strconv.Atoi(c.Param("delivery_id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый ИД доставки"})
         return
@@ -76,17 +81,17 @@ func (h *Handler) GetDeliveryByID(c *gin.Context) {
 
     var delivery model.DeliveryGetResponse
 
-     if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        delivery, err = h.UseCase.GetDeliveryByIDModerator(uint(deliveryID), userID)
+    if middleware.ModeratorOnly(h.UseCase.Repository, c){
+        delivery, err = h.UseCase.GetDeliveryByIDModerator(uint(deliveryID)) 
     } else {
         delivery, err = h.UseCase.GetDeliveryByIDUser(uint(deliveryID), userID)
     }
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    c.JSON(http.StatusOK, delivery)
+    c.JSON(http.StatusOK, gin.H{"delivery" : delivery})
 }
 
 // DeleteDelivery godoc
@@ -99,14 +104,16 @@ func (h *Handler) GetDeliveryByID(c *gin.Context) {
 // @Param startFormationDate query string false "Начало даты формирования" Format(email)
 // @Param endFormationDate query string false "Конец даты формирования" Format(email)
 // @Param deliveryStatus query string false "Статус доставки" Format(email)
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryRequest "Список багажей"
-// @Failure 400 {object} model.DeliveryRequest "Недопустимый идентификатор доставки"
-// @Failure 500 {object} model.DeliveryRequest "Ошибка сервера"
-// @Router /delivery/{id}/delete [delete]
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /delivery/{delivery_id}/delete [delete]
 func (h *Handler) DeleteDelivery(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -115,30 +122,37 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
     startFormationDate := c.DefaultQuery("startFormationDate", "")
     endFormationDate := c.DefaultQuery("endFormationDate", "")
     deliveryStatus := c.DefaultQuery("deliveryStatus", "")
-    deliveryID, err := strconv.Atoi(c.Param("id"))
+    deliveryID, err := strconv.Atoi(c.Param("delivery_id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый ИД доставки"})
         return
     }
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос недоступен для модератора"})
-        return
+        err = h.UseCase.DeleteDeliveryUser(uint(deliveryID), userID)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+        deliveries, err := h.UseCase.GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+        c.JSON(http.StatusOK, gin.H{"deliveries": deliveries})
+    } else {
+        err = h.UseCase.DeleteDeliveryUser(uint(deliveryID), userID)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+        deliveries, err := h.UseCase.GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, userID)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+        c.JSON(http.StatusOK, gin.H{"deliveries": deliveries})
     }
-
-    err = h.UseCase.DeleteDeliveryUser(uint(deliveryID), userID)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    deliveries, err := h.UseCase.GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, userID)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"deliveries": deliveries})
 }
 
 // UpdateDeliveryFlightNumber godoc
@@ -148,19 +162,21 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Идентификатор доставки"
 // @Param flightNumber body model.DeliveryUpdateFlightNumberRequest true "Новый номер рейса"
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryGetResponse "Информация о доставке"
-// @Failure 400 {object} model.DeliveryGetResponse "Недопустимый идентификатор доставки или ошибка чтения JSON объекта"
-// @Failure 500 {object} model.DeliveryGetResponse "Ошибка сервера"
-// @Router /delivery/{id}/update [put]
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /delivery/{delivery_id}/update [put]
 func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
 
-    deliveryID, err := strconv.Atoi(c.Param("id"))
+    deliveryID, err := strconv.Atoi(c.Param("delivery_id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый ИД доставки"})
         return
@@ -173,15 +189,15 @@ func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
     }
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c){
-        err = h.UseCase.UpdateFlightNumberModerator(uint(deliveryID), userID, flightNumber)
+        err = h.UseCase.UpdateFlightNumberUser(uint(deliveryID), userID, flightNumber)
         if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
 
-        delivery, err := h.UseCase.GetDeliveryByIDModerator(uint(deliveryID), userID)
+        delivery, err := h.UseCase.GetDeliveryByIDModerator(uint(deliveryID))
         if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
         }
 
@@ -189,13 +205,13 @@ func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
     } else {
         err = h.UseCase.UpdateFlightNumberUser(uint(deliveryID), userID, flightNumber)
         if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
 
         delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), userID)
         if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
         }
 
@@ -209,27 +225,41 @@ func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
 // @Tags Доставка
 // @Produce json
 // @Param id path int true "Идентификатор доставки"
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryGetResponse "Информация о доставке"
-// @Failure 400 {object} model.DeliveryGetResponse "Недопустимый идентификатор доставки"
-// @Failure 500 {object} model.DeliveryGetResponse "Ошибка сервера"
-// @Router /delivery/{id}/user [put]
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /delivery/{delivery_id}/status/user [put]
 func (h *Handler) UpdateDeliveryStatusUser(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
 
-    deliveryID, err := strconv.Atoi(c.Param("id"))
+    deliveryID, err := strconv.Atoi(c.Param("delivery_id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "недоупстимый ИД доставки"})
         return
     }
 
     if middleware.ModeratorOnly(h.UseCase.Repository, c) {
-        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос доступен только пользователю"})
+        err = h.UseCase.UpdateDeliveryStatusUser(uint(deliveryID), userID)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+
+        delivery, err := h.UseCase.GetDeliveryByIDModerator(uint(deliveryID))
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
+        }
+
+        c.JSON(http.StatusOK, gin.H{"delivery": delivery})
+    
     } else {
         err = h.UseCase.UpdateDeliveryStatusUser(uint(deliveryID), userID)
         if err != nil {
@@ -254,19 +284,21 @@ func (h *Handler) UpdateDeliveryStatusUser(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Идентификатор доставки"
 // @Param deliveryStatus body model.DeliveryUpdateStatusRequest true "Новый статус доставки"
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.DeliveryGetResponse "Информация о доставке"
-// @Failure 400 {object} model.DeliveryGetResponse "Недопустимый идентификатор доставки или ошибка чтения JSON объекта"
-// @Failure 500 {object} model.DeliveryGetResponse "Ошибка сервера"
-// @Router /delivery/{id}/status [put]
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /delivery/{delivery_id}/status/moderator [put]
 func (h *Handler) UpdateDeliveryStatusModerator(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
 
-    deliveryID, err := strconv.Atoi(c.Param("id"))
+    deliveryID, err := strconv.Atoi(c.Param("delivery_id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "недопустимый ИД доставки"})
         return
@@ -281,7 +313,7 @@ func (h *Handler) UpdateDeliveryStatusModerator(c *gin.Context) {
     if middleware.ModeratorOnly(h.UseCase.Repository, c){
         err = h.UseCase.UpdateDeliveryStatusModerator(uint(deliveryID), userID, deliveryStatus)
         if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
             return
         }
 

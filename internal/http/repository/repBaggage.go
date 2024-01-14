@@ -9,6 +9,13 @@ import (
 
 type BaggageRepository interface {
     GetBaggages(searchCode string, userID uint) (model.BaggagesGetResponse, error)
+    GetBaggageByID(baggageID, userID uint) (model.Baggage, error)
+    CreateBaggage(userID uint, baggage model.Baggage) error 
+    DeleteBaggage(baggageID, userID uint) error 
+    UpdateBaggage(baggageID, userID uint, baggage model.Baggage) error 
+    AddBaggageToDelivery(baggageID, userID, moderatorID uint) error 
+    RemoveBaggageFromDelivery(baggageID, userID uint) error 
+    AddBaggageImage(baggageID, userID uint, imageURL string) error
 }
 
 func (r *Repository) GetBaggages(searchCode string, userID uint) (model.BaggagesGetResponse, error) {
@@ -60,14 +67,17 @@ func (r *Repository) CreateBaggage(userID uint, baggage model.Baggage) error {
 func (r *Repository) DeleteBaggage(baggageID, userID uint) error {
     var baggage model.Baggage
 
-	if err := r.db.Table("baggages").Where("baggage_id = ? AND baggage_status = ?", baggageID, model.BAGGAGE_STATUS_ACTIVE).First(baggage).Error; 
+	if err := r.db.Table("baggages").Where("baggage_id = ? AND baggage_status = ?", baggageID, model.BAGGAGE_STATUS_ACTIVE).First(&baggage).Error; 
     err != nil {
 		return errors.New("багаж не найден или уже удален")
 	}
 
 	baggage.BaggageStatus = model.BAGGAGE_STATUS_DELETED
 
-	if err := r.db.Table("baggages").Save(baggage).Error; 
+	if err := r.db.Table("baggages").
+    Model(&model.Baggage{}).
+    Where("baggage_id = ?", baggageID).
+    Updates(baggage).Error; 
     err != nil {
 		return errors.New("ошибка при обновлении статуса багажа в БД")
 	}
@@ -86,7 +96,7 @@ func (r *Repository) UpdateBaggage(baggageID, userID uint, baggage model.Baggage
 	return nil
 }
 
-func (r *Repository) AddBaggageToDelivery(baggageID, userID, moderatorID uint) error {
+func (r *Repository) AddBaggageToDelivery(baggageID, userID uint) error {
     var baggage model.Baggage
 
 	if err := r.db.Table("baggages").
@@ -106,7 +116,6 @@ func (r *Repository) AddBaggageToDelivery(baggageID, userID, moderatorID uint) e
             DeliveryStatus: model.DELIVERY_STATUS_DRAFT,
             CreationDate:   time.Now(),
             UserID:         userID, 
-            ModeratorID:    moderatorID,
         }
 
         if err := r.db.Table("deliveries").

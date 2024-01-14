@@ -6,6 +6,13 @@ import (
 
 	"github.com/markgregr/RIP/internal/model"
 )
+type DeliveryUserUseCase interface {
+	GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, userID uint) ([]model.DeliveryRequest, error)
+	GetDeliveryByIDUser(deliveryID, userID uint) (model.DeliveryGetResponse, error)
+	DeleteDeliveryUser(deliveryID, userID uint) error
+	UpdateFlightNumberUser(deliveryID, userID uint, flightNumber model.DeliveryUpdateFlightNumberRequest) error
+	UpdateDeliveryStatusUser(deliveryID, userID uint) error
+}
 
 func (uc *UseCase) GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, userID uint) ([]model.DeliveryRequest, error) {
 	searchFlightNumber = strings.ToUpper(searchFlightNumber + "%")
@@ -54,7 +61,6 @@ func (uc *UseCase) DeleteDeliveryUser(deliveryID, userID uint) error{
 
 	return nil
 }
-
 
 func (uc *UseCase) UpdateFlightNumberUser(deliveryID, userID uint, flightNumber model.DeliveryUpdateFlightNumberRequest) error{
 	if deliveryID <= 0 {

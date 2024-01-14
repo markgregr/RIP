@@ -7,8 +7,13 @@ import (
 	"github.com/markgregr/RIP/internal/model"
 )
 
+type DeliveryModeratorRepository interface{
+    GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string) ([]model.DeliveryRequest, error)
+    GetDeliveryByIDModerator(deliveryID uint) (model.DeliveryGetResponse, error)
+    UpdateDeliveryStatusModerator(deliveryID uint, deliveryStatus model.DeliveryUpdateStatusRequest) error
+}
 
-func (r *Repository) GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, moderatorID uint) ([]model.DeliveryRequest, error) {
+func (r *Repository) GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string) ([]model.DeliveryRequest, error) {
     query := r.db.Table("deliveries").
         Select("DISTINCT deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
@@ -27,7 +32,7 @@ func (r *Repository) GetDeliveriesModerator(searchFlightNumber, startFormationDa
     return deliveries, nil
 }
 
-func (r *Repository) GetDeliveryByIDModerator(deliveryID, moderatorID uint) (model.DeliveryGetResponse, error) {
+func (r *Repository) GetDeliveryByIDModerator(deliveryID uint) (model.DeliveryGetResponse, error) {
     var delivery model.DeliveryGetResponse
 
     if err := r.db.
@@ -53,36 +58,19 @@ func (r *Repository) GetDeliveryByIDModerator(deliveryID, moderatorID uint) (mod
     return delivery, nil
 }
 
-func (r *Repository) UpdateFlightNumberModerator(deliveryID uint, moderatorID uint, flightNumber model.DeliveryUpdateFlightNumberRequest) error {
-    var delivery model.Delivery
-    if err := r.db.Table("deliveries").
-        Where("delivery_id = ? AND moderator_id = ?", deliveryID, moderatorID).
-        First(&delivery).
-        Error; err != nil {
-        return errors.New("доставка не найдена или не принадлежит указанному модератору")
-    }
-
-    if err := r.db.Table("deliveries").
-        Model(&delivery).
-        Update("flight_number", flightNumber.FlightNumber).
-        Error; err != nil {
-        return errors.New("ошибка обновления номера рейса")
-    }
-
-    return nil
-}
-
 func (r *Repository) UpdateDeliveryStatusModerator(deliveryID, moderatorID uint, deliveryStatus model.DeliveryUpdateStatusRequest) error {
     var delivery model.Delivery
     if err := r.db.Table("deliveries").
-        Where("delivery_id = ? AND moderator_id = ? AND delivery_status = ?", deliveryID, moderatorID, model.DELIVERY_STATUS_WORK).
+        Where("delivery_id = ? AND delivery_status = ?", deliveryID, model.DELIVERY_STATUS_WORK).
         First(&delivery).
         Error; err != nil {
         return errors.New("доставка не найдена или не принадлежит указанному модератору")
     }
 
     delivery.DeliveryStatus = deliveryStatus.DeliveryStatus
-	delivery.CompletionDate = time.Now()
+    delivery.ModeratorID = moderatorID
+    currentTime := time.Now()
+	delivery.FormationDate = &currentTime
 
     if err := r.db.Save(&delivery).Error; err != nil {
         return errors.New("ошибка обновления статуса доставки в БД")

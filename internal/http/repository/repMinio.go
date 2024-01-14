@@ -42,7 +42,7 @@ func (r *Repository) RemoveServiceImage(baggageID, userID uint) error {
 
     if err := r.db.Table("baggages").
 	Where("baggage_id = ?", baggageID).
-	Update("photo", nil).Error; 
+	Update("photo_url", nil).Error; 
 	err != nil {
         return errors.New("ошибка при обновлении URL изображения в базе данных")
     }

@@ -9,29 +9,7 @@ import (
 type UserRepository interface {
 	CreateUser(user model.User) error
 	GetByEmail(email string) (model.User, error)
-}
-
-func (r *Repository) GetUsers() ([]model.User, error) {
-	var users []model.User
-
-	err := r.db.Table("users").
-	Scan(&users).Error; 
-	if err != nil {
-        return nil, errors.New("ошибка нахождения списка пользователей")
-    }
-	
-	return users, nil
-}
-
-func (r *Repository) GetUserByID(userID uint) (model.User, error) {
-	var user model.User
-
-	err := r.db.Table("users").Where(`"user_id" = ?`, userID).Find(&user).Error
-	if err != nil {
-		return model.User{}, errors.New("пользователь с данным ID не найден")
-	}
-
-	return user, nil
+	GetUserRoleByID(userID uint) (model.Role, error) 
 }
 
 func (r *Repository) CreateUser(user model.User) error {

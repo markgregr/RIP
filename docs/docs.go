@@ -41,10 +41,16 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.BaggagesGetResponse"
                         }
                     },
-                    "500": {
-                        "description": "Ошибка сервера",
+                    "400": {
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -79,6 +85,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.BaggageRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -89,15 +102,27 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Некорректный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "У пользователя нет прав для этого запроса",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
+                            "type": "string"
                         }
                     }
                 }
@@ -130,15 +155,15 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Некорректный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.Baggage"
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.Baggage"
+                            "type": "string"
                         }
                     }
                 }
@@ -168,6 +193,13 @@ const docTemplate = `{
                         "description": "Код багажа",
                         "name": "searchCode",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -178,15 +210,27 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Некорректный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "У пользователя нет прав для этого запроса",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
+                            "type": "string"
                         }
                     }
                 }
@@ -212,6 +256,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "format": "email",
                         "description": "Код багажа",
                         "name": "searchCode",
@@ -226,15 +277,80 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Некорректный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаляет багаж из доставки по его ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Багаж"
+                ],
+                "summary": "Удаление багажа из доставки",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID багажа",
+                        "name": "baggage_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "format": "email",
+                        "description": "Код багажа",
+                        "name": "searchCode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Список багажей",
+                        "schema": {
                             "$ref": "#/definitions/model.BaggagesGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Обработанная ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -267,25 +383,44 @@ const docTemplate = `{
                         "name": "image",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Информация о багаже с изображением",
                         "schema": {
                             "$ref": "#/definitions/model.Baggage"
                         }
                     },
                     "400": {
-                        "description": "Некорректный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.Baggage"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "У пользователя нет прав для этого запроса",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.Baggage"
+                            "type": "string"
                         }
                     }
                 }
@@ -311,6 +446,13 @@ const docTemplate = `{
                         "name": "baggage_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -321,63 +463,27 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Некорректный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.Baggage"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "У пользователя нет прав для этого запроса",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.Baggage"
-                        }
-                    }
-                }
-            }
-        },
-        "/baggages/{baggage_id}/delivery": {
-            "post": {
-                "description": "Удаляет багаж из доставки по его ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Багаж"
-                ],
-                "summary": "Удаление багажа из доставки",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID багажа",
-                        "name": "baggage_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "format": "email",
-                        "description": "Код багажа",
-                        "name": "searchCode",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Список багажей",
-                        "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Некорректный запрос",
-                        "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/model.BaggagesGetResponse"
+                            "type": "string"
                         }
                     }
                 }
@@ -421,6 +527,13 @@ const docTemplate = `{
                         "description": "Статус доставки",
                         "name": "deliveryStatus",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -430,16 +543,28 @@ const docTemplate = `{
                             "$ref": "#/definitions/model.DeliveryRequest"
                         }
                     },
-                    "500": {
-                        "description": "Ошибка сервера",
+                    "400": {
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryRequest"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "/delivery/{id}": {
+        "/delivery/{delivery_id}": {
             "get": {
                 "description": "Возвращает информацию о доставке по её идентификатору",
                 "produces": [
@@ -456,6 +581,13 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -466,21 +598,27 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Недопустимый идентификатор доставки",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Ошибка сервера",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "/delivery/{id}/delete": {
+        "/delivery/{delivery_id}/delete": {
             "delete": {
                 "description": "Удаляет доставку по её идентификатору",
                 "produces": [
@@ -525,6 +663,13 @@ const docTemplate = `{
                         "description": "Статус доставки",
                         "name": "deliveryStatus",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -535,21 +680,27 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Недопустимый идентификатор доставки",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryRequest"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Ошибка сервера",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryRequest"
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "/delivery/{id}/status": {
+        "/delivery/{delivery_id}/status/moderator": {
             "put": {
                 "description": "Обновляет статус доставки для модератора по идентификатору доставки",
                 "produces": [
@@ -575,6 +726,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.DeliveryUpdateStatusRequest"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -585,21 +743,81 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Недопустимый идентификатор доставки или ошибка чтения JSON объекта",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
-                        "description": "Ошибка сервера",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
+                            "type": "string"
                         }
                     }
                 }
             }
         },
-        "/delivery/{id}/update": {
+        "/delivery/{delivery_id}/status/user": {
+            "put": {
+                "description": "Обновляет статус доставки для пользователя по идентификатору доставки",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Доставка"
+                ],
+                "summary": "Обновление статуса доставки для пользователя",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Идентификатор доставки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Информация о доставке",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeliveryGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Обработанная ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/delivery/{delivery_id}/update": {
             "put": {
                 "description": "Обновляет номер рейса для доставки по её идентификатору",
                 "produces": [
@@ -625,46 +843,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/model.DeliveryUpdateFlightNumberRequest"
                         }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Информация о доставке",
-                        "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
-                        }
                     },
-                    "400": {
-                        "description": "Недопустимый идентификатор доставки или ошибка чтения JSON объекта",
-                        "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/delivery/{id}/user": {
-            "put": {
-                "description": "Обновляет статус доставки для пользователя по идентификатору доставки",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Доставка"
-                ],
-                "summary": "Обновление статуса доставки для пользователя",
-                "parameters": [
                     {
-                        "type": "integer",
-                        "description": "Идентификатор доставки",
-                        "name": "id",
-                        "in": "path",
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
@@ -676,53 +860,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Недопустимый идентификатор доставки",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
-                    "500": {
-                        "description": "Ошибка сервера",
+                    "401": {
+                        "description": "Пользователь не авторизован",
                         "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/user/": {
-            "get": {
-                "description": "Получение данных пользователя по его идентификатору",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Получить пользователя по идентификатору",
-                "responses": {
-                    "200": {
-                        "description": "Успешный ответ",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.User"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "string"
                         }
                     }
                 }
@@ -754,30 +906,21 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Успешный ответ",
+                        "description": "Токен",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.UserLoginResponse"
                         }
                     },
                     "400": {
-                        "description": "Неверный запрос",
+                        "description": "Обработанная ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "string"
                         }
                     }
                 }
@@ -793,55 +936,20 @@ const docTemplate = `{
                     "Пользователь"
                 ],
                 "summary": "Выход пользователя",
-                "responses": {
-                    "200": {
-                        "description": "Успешный ответ",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Неверный запрос",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
-                        }
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Токен авторизации",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
-                }
-            }
-        },
-        "/user/refreshtoken": {
-            "post": {
-                "description": "Обновление пары токенов",
-                "produces": [
-                    "application/json"
                 ],
-                "tags": [
-                    "Пользователь"
-                ],
-                "summary": "Обновление токенов",
                 "responses": {
                     "200": {
                         "description": "Успешный ответ",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -890,13 +998,22 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "201": {
-                        "description": "Успешно зарегистрированный пользователь",
+                    "200": {
+                        "description": "Токен",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.User"
-                            }
+                            "$ref": "#/definitions/model.UserLoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Обработанная ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -1070,6 +1187,14 @@ const docTemplate = `{
                 }
             }
         },
+        "model.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Role": {
             "type": "string",
             "enum": [
@@ -1081,26 +1206,6 @@ const docTemplate = `{
                 "ModeratorRole"
             ]
         },
-        "model.User": {
-            "type": "object",
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "role": {
-                    "$ref": "#/definitions/model.Role"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "model.UserLoginRequest": {
             "type": "object",
             "properties": {
@@ -1109,6 +1214,20 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "model.UserLoginResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/model.Role"
                 }
             }
         },

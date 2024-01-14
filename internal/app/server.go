@@ -39,16 +39,15 @@ func (app *Application) Run() {
     DeliveryGroup := r.Group("/delivery").Use(middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository))
     {
         DeliveryGroup.GET("/", app.Handler.GetDeliveries)
-        DeliveryGroup.GET("/:id", app.Handler.GetDeliveryByID)
-        DeliveryGroup.DELETE("/:id/delete", app.Handler.DeleteDelivery)
-        DeliveryGroup.PUT("/:id/update", app.Handler.UpdateDeliveryFlightNumber)
-        DeliveryGroup.PUT("/:id/status/user", app.Handler.UpdateDeliveryStatusUser)  // Новый маршрут для обновления статуса доставки пользователем
-        DeliveryGroup.PUT("/:id/status/moderator", app.Handler.UpdateDeliveryStatusModerator)  // Новый маршрут для обновления статуса доставки модератором
+        DeliveryGroup.GET("/:delivery_id", app.Handler.GetDeliveryByID)
+        DeliveryGroup.DELETE("/:delivery_id/delete", app.Handler.DeleteDelivery)
+        DeliveryGroup.PUT("/:delivery_id/update", app.Handler.UpdateDeliveryFlightNumber)
+        DeliveryGroup.PUT("/:delivery_id/status/user", app.Handler.UpdateDeliveryStatusUser)  // Новый маршрут для обновления статуса доставки пользователем
+        DeliveryGroup.PUT("/:delivery_id/status/moderator", app.Handler.UpdateDeliveryStatusModerator)  // Новый маршрут для обновления статуса доставки модератором
     }
 
     UserGroup := r.Group("/user")
     {
-        UserGroup.GET("/", app.Handler.GetUserByID)
         UserGroup.POST("/register", app.Handler.Register)
         UserGroup.POST("/login", app.Handler.Login)
         UserGroup.POST("/logout", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.Logout)

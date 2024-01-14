@@ -7,15 +7,17 @@ import (
 	"github.com/markgregr/RIP/internal/model"
 )
 
-func (uc *UseCase) GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, moderatorID uint) ([]model.DeliveryRequest, error) {
+type DeliveryModeratorUseCase interface {
+	GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string) ([]model.DeliveryRequest, error)
+	GetDeliveryByIDModerator(deliveryID uint) (model.DeliveryGetResponse, error)
+	UpdateDeliveryStatusModerator(deliveryID, moderatorID uint, deliveryStatus model.DeliveryUpdateStatusRequest) error
+}
+
+func (uc *UseCase) GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string) ([]model.DeliveryRequest, error) {
 	searchFlightNumber = strings.ToUpper(searchFlightNumber + "%")
 	deliveryStatus = strings.ToLower(deliveryStatus + "%")
 
-	if moderatorID <= 0 {
-		return nil, errors.New("недопустимый ИД модератора")
-	}
-
-	deliveries, err := uc.Repository.GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus, moderatorID)
+	deliveries, err := uc.Repository.GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus)
 	if err != nil {
 		return nil, err
 	}
@@ -23,15 +25,12 @@ func (uc *UseCase) GetDeliveriesModerator(searchFlightNumber, startFormationDate
 	return deliveries, nil
 }
 
-func (uc *UseCase) GetDeliveryByIDModerator(deliveryID, moderatorID uint) (model.DeliveryGetResponse, error) {
+func (uc *UseCase) GetDeliveryByIDModerator(deliveryID uint) (model.DeliveryGetResponse, error) {
 	if deliveryID <= 0 {
 		return model.DeliveryGetResponse{}, errors.New("недопустимый ИД доставки")
 	}
-	if moderatorID <= 0 {
-		return model.DeliveryGetResponse{}, errors.New("недопустимый ИД модератора")
-	}
 
-	deliveries, err := uc.Repository.GetDeliveryByIDModerator(deliveryID, moderatorID)
+	deliveries, err := uc.Repository.GetDeliveryByIDModerator(deliveryID)
 	if err != nil {
 		return model.DeliveryGetResponse{}, err
 	}
@@ -39,31 +38,9 @@ func (uc *UseCase) GetDeliveryByIDModerator(deliveryID, moderatorID uint) (model
 	return deliveries, nil
 }
 
-func (uc *UseCase) UpdateFlightNumberModerator(deliveryID, moderatorID uint, flightNumber model.DeliveryUpdateFlightNumberRequest) error{
-	if deliveryID <= 0 {
-		return errors.New("недопустимый ИД доставки")
-	}
-	if moderatorID <= 0 {
-		return errors.New("недопустимый ИД модератора")
-	}
-	if len(flightNumber.FlightNumber) !=6 {
-		return errors.New("недопустимый номер рейса")
-	}
-
-	err := uc.Repository.UpdateFlightNumberModerator(deliveryID, moderatorID, flightNumber)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (uc *UseCase) UpdateDeliveryStatusModerator(deliveryID, moderatorID uint, deliveryStatus model.DeliveryUpdateStatusRequest) error{
 	if deliveryID <= 0 {
 		return errors.New("недопустимый ИД доставки")
-	}
-	if moderatorID <= 0 {
-		return errors.New("недопустимый ИД модератора")
 	}
 	if deliveryStatus.DeliveryStatus != model.DELIVERY_STATUS_COMPLETED && deliveryStatus.DeliveryStatus != model.DELIVERY_STATUS_REJECTED {
 		return errors.New("текущий статус доставки уже завершен или отклонен")

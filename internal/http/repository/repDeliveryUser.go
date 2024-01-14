@@ -7,6 +7,14 @@ import (
 	"github.com/markgregr/RIP/internal/model"
 )
 
+type DeliveryUserRepository interface{
+    GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, userID uint) ([]model.DeliveryRequest, error)
+    GetDeliveryByIDUser(deliveryID, userID uint) (model.DeliveryGetResponse, error)
+    DeleteDeliveryUser(deliveryID, userID uint) error
+    UpdateFlightNumberUser(deliveryID uint, userID uint, flightNumber model.DeliveryUpdateFlightNumberRequest) error
+    UpdateDeliveryStatusUser(deliveryID, userID uint) error
+}
+
 func (r *Repository) GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, userID uint) ([]model.DeliveryRequest, error) {
     query := r.db.Table("deliveries").
         Select("DISTINCT deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
@@ -105,7 +113,8 @@ func (r *Repository) UpdateDeliveryStatusUser(deliveryID, userID uint) error {
     }
 
     delivery.DeliveryStatus = model.DELIVERY_STATUS_WORK
-	delivery.FormationDate = time.Now()
+    currentTime := time.Now()
+	delivery.FormationDate = &currentTime
 
     if err := r.db.Save(&delivery).Error; err != nil {
         return errors.New("ошибка обновления статуса доставки в БД")

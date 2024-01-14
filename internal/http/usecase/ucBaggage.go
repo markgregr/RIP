@@ -8,10 +8,18 @@ import (
 )
 
 type BaggageUseCase interface {
+	GetBaggages(searchCode string, userID uint) (model.BaggagesGetResponse, error)
+	GetBaggageByID(baggageID, userID uint) (model.Baggage, error)
+	CreateBaggage(userID uint, requestBaggage model.BaggageRequest) error
+	DeleteBaggage(baggageID, userID uint) error
+	UpdateBaggage(baggageID, userID uint, requestBaggage model.BaggageRequest) error
+	AddBaggageToDelivery(baggageID, userID, moderatorID uint) error
+	RemoveBaggageFromDelivery(baggageID, userID uint) error
+	AddBaggageImage(baggageID, userID uint, imageBytes []byte, ContentType string) error
 }
 
 func (uc *UseCase) GetBaggages(searchCode string, userID uint) (model.BaggagesGetResponse, error) {
-	if userID < 0 {
+	if userID <= 0 {
 		return model.BaggagesGetResponse{}, errors.New("недопустимый ИД пользователя")
 	}
 
@@ -29,7 +37,7 @@ func (uc *UseCase) GetBaggageByID(baggageID, userID uint) (model.Baggage, error)
 	if baggageID <= 0 {
 		return model.Baggage{}, errors.New("недопустимый ИД багажа")
 	}
-	if userID < 0 {
+	if userID <= 0 {
 		return model.Baggage{}, errors.New("недопустимый ИД пользователя")
 	}
 
@@ -133,18 +141,15 @@ func (uc *UseCase) UpdateBaggage(baggageID, userID uint, requestBaggage model.Ba
 	return nil
 }
 
-func (uc *UseCase) AddBaggageToDelivery(baggageID, userID, moderatorID uint) error {
+func (uc *UseCase) AddBaggageToDelivery(baggageID, userID uint) error {
 	if baggageID <= 0 {
 		return errors.New("недопустимый ИД багажа")
 	}
 	if userID <= 0 {
 		return errors.New("недопустимый ИД пользователя")
 	}
-	if moderatorID <= 0 {
-		return errors.New("недопустимый ИД модератора")
-	}
 
-	err := uc.Repository.AddBaggageToDelivery(baggageID, userID, moderatorID)
+	err := uc.Repository.AddBaggageToDelivery(baggageID, userID)
 	if err != nil {
 		return err
 	}

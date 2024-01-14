@@ -113,6 +113,11 @@ definitions:
       delivery_status:
         type: string
     type: object
+  model.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
   model.Role:
     enum:
     - пользователь
@@ -121,25 +126,21 @@ definitions:
     x-enum-varnames:
     - UserRole
     - ModeratorRole
-  model.User:
-    properties:
-      email:
-        type: string
-      full_name:
-        type: string
-      password:
-        type: string
-      role:
-        $ref: '#/definitions/model.Role'
-      user_id:
-        type: integer
-    type: object
   model.UserLoginRequest:
     properties:
       email:
         type: string
       password:
         type: string
+    type: object
+  model.UserLoginResponse:
+    properties:
+      access_token:
+        type: string
+      full_name:
+        type: string
+      role:
+        $ref: '#/definitions/model.Role'
     type: object
   model.UserRegisterRequest:
     properties:
@@ -169,10 +170,14 @@ paths:
           description: Список багажей
           schema:
             $ref: '#/definitions/model.BaggagesGetResponse'
-        "500":
-          description: Ошибка сервера
+        "400":
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
       summary: Получение списка багажа
       tags:
       - Багаж
@@ -193,13 +198,13 @@ paths:
           schema:
             $ref: '#/definitions/model.Baggage'
         "400":
-          description: Некорректный запрос
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.Baggage'
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.Baggage'
+            type: string
       summary: Получение багажа по ID
       tags:
       - Багаж
@@ -217,6 +222,11 @@ paths:
         in: query
         name: searchCode
         type: string
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -225,17 +235,65 @@ paths:
           schema:
             $ref: '#/definitions/model.BaggagesGetResponse'
         "400":
-          description: Некорректный запрос
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: У пользователя нет прав для этого запроса
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
+            type: string
       summary: Удаление багажа
       tags:
       - Багаж
   /baggage/{baggage_id}/delivery:
+    delete:
+      description: Удаляет багаж из доставки по его ID
+      parameters:
+      - description: ID багажа
+        in: path
+        name: baggage_id
+        required: true
+        type: integer
+      - description: Код багажа
+        format: email
+        in: query
+        name: searchCode
+        type: string
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список багажей
+          schema:
+            $ref: '#/definitions/model.BaggagesGetResponse'
+        "400":
+          description: Обработанная ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Удаление багажа из доставки
+      tags:
+      - Багаж
     post:
       description: Добавляет багаж к доставке по его ID
       parameters:
@@ -244,6 +302,11 @@ paths:
         name: baggage_id
         required: true
         type: integer
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Код багажа
         format: email
         in: query
@@ -257,13 +320,17 @@ paths:
           schema:
             $ref: '#/definitions/model.BaggagesGetResponse'
         "400":
-          description: Некорректный запрос
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
+            type: string
       summary: Добавление багажа к доставке
       tags:
       - Багаж
@@ -283,21 +350,34 @@ paths:
         name: image
         required: true
         type: file
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Информация о багаже с изображением
           schema:
             $ref: '#/definitions/model.Baggage'
         "400":
-          description: Некорректный запрос
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.Baggage'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: У пользователя нет прав для этого запроса
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.Baggage'
+            type: string
       summary: Добавление изображения к багажу
       tags:
       - Багаж
@@ -312,6 +392,11 @@ paths:
         name: baggage_id
         required: true
         type: integer
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -320,13 +405,21 @@ paths:
           schema:
             $ref: '#/definitions/model.Baggage'
         "400":
-          description: Некорректный запрос
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.Baggage'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: У пользователя нет прав для этого запроса
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.Baggage'
+            type: string
       summary: Обновление информации о багаже
       tags:
       - Багаж
@@ -347,37 +440,10 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.BaggageRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список багажей
-          schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
-        "400":
-          description: Некорректный запрос
-          schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
-      summary: Создание нового багажа
-      tags:
-      - Багаж
-  /baggages/{baggage_id}/delivery:
-    post:
-      description: Удаляет багаж из доставки по его ID
-      parameters:
-      - description: ID багажа
-        in: path
-        name: baggage_id
+      - description: Токен авторизации
+        in: header
+        name: Authorization
         required: true
-        type: integer
-      - description: Код багажа
-        format: email
-        in: query
-        name: searchCode
         type: string
       produces:
       - application/json
@@ -387,14 +453,22 @@ paths:
           schema:
             $ref: '#/definitions/model.BaggagesGetResponse'
         "400":
-          description: Некорректный запрос
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: У пользователя нет прав для этого запроса
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
-      summary: Удаление багажа из доставки
+            type: string
+      summary: Создание нового багажа
       tags:
       - Багаж
   /delivery:
@@ -421,6 +495,11 @@ paths:
         in: query
         name: deliveryStatus
         type: string
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -428,14 +507,22 @@ paths:
           description: Список доставок
           schema:
             $ref: '#/definitions/model.DeliveryRequest'
-        "500":
-          description: Ошибка сервера
+        "400":
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.DeliveryRequest'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
       summary: Получение списка доставок
       tags:
       - Доставка
-  /delivery/{id}:
+  /delivery/{delivery_id}:
     get:
       description: Возвращает информацию о доставке по её идентификатору
       parameters:
@@ -444,6 +531,11 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -452,17 +544,21 @@ paths:
           schema:
             $ref: '#/definitions/model.DeliveryGetResponse'
         "400":
-          description: Недопустимый идентификатор доставки
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
-          description: Ошибка сервера
+          description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
+            type: string
       summary: Получение доставки по идентификатору
       tags:
       - Доставка
-  /delivery/{id}/delete:
+  /delivery/{delivery_id}/delete:
     delete:
       description: Удаляет доставку по её идентификатору
       parameters:
@@ -491,6 +587,11 @@ paths:
         in: query
         name: deliveryStatus
         type: string
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -499,17 +600,21 @@ paths:
           schema:
             $ref: '#/definitions/model.DeliveryRequest'
         "400":
-          description: Недопустимый идентификатор доставки
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.DeliveryRequest'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
-          description: Ошибка сервера
+          description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.DeliveryRequest'
+            type: string
       summary: Удаление доставки
       tags:
       - Доставка
-  /delivery/{id}/status:
+  /delivery/{delivery_id}/status/moderator:
     put:
       description: Обновляет статус доставки для модератора по идентификатору доставки
       parameters:
@@ -524,6 +629,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DeliveryUpdateStatusRequest'
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -532,18 +642,57 @@ paths:
           schema:
             $ref: '#/definitions/model.DeliveryGetResponse'
         "400":
-          description: Недопустимый идентификатор доставки или ошибка чтения JSON
-            объекта
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
-          description: Ошибка сервера
+          description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
+            type: string
       summary: Обновление статуса доставки для модератора
       tags:
       - Доставка
-  /delivery/{id}/update:
+  /delivery/{delivery_id}/status/user:
+    put:
+      description: Обновляет статус доставки для пользователя по идентификатору доставки
+      parameters:
+      - description: Идентификатор доставки
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о доставке
+          schema:
+            $ref: '#/definitions/model.DeliveryGetResponse'
+        "400":
+          description: Обработанная ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Обновление статуса доставки для пользователя
+      tags:
+      - Доставка
+  /delivery/{delivery_id}/update:
     put:
       description: Обновляет номер рейса для доставки по её идентификатору
       parameters:
@@ -558,34 +707,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/model.DeliveryUpdateFlightNumberRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Информация о доставке
-          schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
-        "400":
-          description: Недопустимый идентификатор доставки или ошибка чтения JSON
-            объекта
-          schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
-        "500":
-          description: Ошибка сервера
-          schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
-      summary: Обновление номера рейса доставки
-      tags:
-      - Доставка
-  /delivery/{id}/user:
-    put:
-      description: Обновляет статус доставки для пользователя по идентификатору доставки
-      parameters:
-      - description: Идентификатор доставки
-        in: path
-        name: id
+      - description: Токен авторизации
+        in: header
+        name: Authorization
         required: true
-        type: integer
+        type: string
       produces:
       - application/json
       responses:
@@ -594,41 +720,20 @@ paths:
           schema:
             $ref: '#/definitions/model.DeliveryGetResponse'
         "400":
-          description: Недопустимый идентификатор доставки
+          description: Обработанная ошибка сервера
           schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
-        "500":
-          description: Ошибка сервера
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
           schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
-      summary: Обновление статуса доставки для пользователя
-      tags:
-      - Доставка
-  /user/:
-    get:
-      description: Получение данных пользователя по его идентификатору
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешный ответ
-          schema:
-            items:
-              $ref: '#/definitions/model.User'
-            type: array
-        "400":
-          description: Неверный запрос
-          schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Получить пользователя по идентификатору
+            type: string
+      summary: Обновление номера рейса доставки
+      tags:
+      - Доставка
   /user/login:
     post:
       consumes:
@@ -645,38 +750,36 @@ paths:
       - application/json
       responses:
         "200":
-          description: Успешный ответ
+          description: Токен
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.UserLoginResponse'
         "400":
-          description: Неверный запрос
+          description: Обработанная ошибка сервера
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
       summary: Вход пользователя
       tags:
       - Пользователь
   /user/logout:
     post:
       description: Выход пользователя из системы и удаление токена из куков
+      parameters:
+      - description: Токен авторизации
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: Успешный ответ
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            type: string
         "400":
           description: Неверный запрос
           schema:
@@ -690,33 +793,6 @@ paths:
               type: string
             type: object
       summary: Выход пользователя
-      tags:
-      - Пользователь
-  /user/refreshtoken:
-    post:
-      description: Обновление пары токенов
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Успешный ответ
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "400":
-          description: Неверный запрос
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Обновление токенов
       tags:
       - Пользователь
   /user/register:
@@ -734,12 +810,18 @@ paths:
       produces:
       - application/json
       responses:
-        "201":
-          description: Успешно зарегистрированный пользователь
+        "200":
+          description: Токен
           schema:
-            items:
-              $ref: '#/definitions/model.User'
-            type: array
+            $ref: '#/definitions/model.UserLoginResponse'
+        "400":
+          description: Обработанная ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
       summary: Регистрация нового пользователя.
       tags:
       - Пользователь

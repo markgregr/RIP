@@ -109,28 +109,6 @@ func (uc *UseCase) LoginUser(requestUser model.UserLoginRequest) (model.UserLogi
 	return response, nil
 }
 
-func (uc *UseCase) GetUserByID(userID uint) (model.User, error) {
-	if userID < 1 {
-		return model.User{}, errors.New("ID не может быть отрицательным")
-	}
-
-	user, err := uc.Repository.GetUserByID(userID)
-	if err != nil {
-		return model.User{}, err
-	}
-
-	return user, nil
-}
-
-func (uc *UseCase) GetUsers() ([]model.User, error) {
-	users, err := uc.Repository.GetUsers()
-	if err != nil {
-		return nil, err
-	}
-
-	return users, nil
-}
-
 func (uc *UseCase) LogoutUser(userID uint) error{
 	err := uc.Repository.DeleteJWTToken(userID)
 	if err != nil {

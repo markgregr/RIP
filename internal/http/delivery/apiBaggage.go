@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/markgregr/RIP/internal/model"
+	"github.com/markgregr/RIP/internal/pkg/middleware"
 )
 
 // @Summary Получение списка багажа
@@ -15,12 +16,13 @@ import (
 // @Produce json
 // @Param searchCode query string false "Код багажа" Format(email)
 // @Success 200 {object} model.BaggagesGetResponse "Список багажей"
-// @Failure 500 {object} model.BaggagesGetResponse "Ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Router /baggage [get]
 func (h *Handler) GetBaggages(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте пп"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте пп"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -28,7 +30,7 @@ func (h *Handler) GetBaggages(c *gin.Context) {
 
     baggages, err := h.UseCase.GetBaggages(searchCode,userID)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
     
@@ -41,13 +43,13 @@ func (h *Handler) GetBaggages(c *gin.Context) {
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
 // @Success 200 {object} model.Baggage "Информация о багаже"
-// @Failure 400 {object} model.Baggage "Некорректный запрос"
-// @Failure 500 {object} model.Baggage "Внутренняя ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id} [get]
 func (h *Handler) GetBaggageByID(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -60,7 +62,7 @@ func (h *Handler) GetBaggageByID(c *gin.Context) {
 
     baggage, err := h.UseCase.GetBaggageByID(uint(baggageID), userID)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
@@ -74,14 +76,17 @@ func (h *Handler) GetBaggageByID(c *gin.Context) {
 // @Produce json
 // @Param searchCode query string false "Код багажа" Format(email)
 // @Param baggage body model.BaggageRequest true "Пользовательский объект в формате JSON"
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.BaggagesGetResponse "Список багажей"
-// @Failure 400 {object} model.BaggagesGetResponse "Некорректный запрос"
-// @Failure 500 {object} model.BaggagesGetResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Router /baggage/create [post]
 func (h *Handler) CreateBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -95,19 +100,24 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 		return
 	}
 
-	err := h.UseCase.CreateBaggage(userID, baggage)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	baggages, err := h.UseCase.GetBaggages(searchCode, userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-    c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
+    if middleware.ModeratorOnly(h.UseCase.Repository, c){
+        err := h.UseCase.CreateBaggage(userID, baggage)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+    
+        baggages, err := h.UseCase.GetBaggages(searchCode, userID)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+    
+        c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
+    } else {
+        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос доступен только модератору"})
+        return
+    }
 }
 
 // @Summary Удаление багажа
@@ -116,14 +126,17 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
 // @Param searchCode query string false "Код багажа" Format(email)
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.BaggagesGetResponse "Список багажей"
-// @Failure 400 {object} model.BaggagesGetResponse "Некорректный запрос"
-// @Failure 500 {object} model.BaggagesGetResponse "Внутренняя ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/delete [delete]
 func (h *Handler) DeleteBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -136,19 +149,24 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 		return
 	}
 
-	err = h.UseCase.DeleteBaggage(uint(baggageID), userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	baggages, err := h.UseCase.GetBaggages(searchCode, userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-    c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
+    if middleware.ModeratorOnly(h.UseCase.Repository, c){
+        err = h.UseCase.DeleteBaggage(uint(baggageID), userID)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+    
+        baggages, err := h.UseCase.GetBaggages(searchCode, userID)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+    
+        c.JSON(http.StatusOK, gin.H{"baggages": baggages.Baggages, "deliveryID":baggages.DeliveryID})
+    } else {
+        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос доступен только модератору"})
+        return
+    }
 }
 
 // @Summary Обновление информации о багаже
@@ -157,14 +175,17 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.Baggage "Информация о багаже"
-// @Failure 400 {object} model.Baggage "Некорректный запрос"
-// @Failure 500 {object} model.Baggage "Внутренняя ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/update [put]
 func (h *Handler) UpdateBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -180,20 +201,25 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
         c.JSON(http.StatusBadRequest, gin.H{"error": "не удалось прочитать JSON"})
         return
     }
+    
+    if middleware.ModeratorOnly(h.UseCase.Repository, c){
+        err = h.UseCase.UpdateBaggage(uint(baggageID),uint(userID), baggage)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
 
-    err = h.UseCase.UpdateBaggage(uint(baggageID),uint(userID), baggage)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        updatedBaggage, err := h.UseCase.GetBaggageByID(uint(baggageID), uint(userID))
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+
+        c.JSON(http.StatusOK, gin.H{"baggage": updatedBaggage})
+    } else {
+        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос дсотупен только модератору"})
         return
     }
-
-    updatedBaggage, err := h.UseCase.GetBaggageByID(uint(baggageID), uint(userID))
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"baggage": updatedBaggage})
 }
 
 // @Summary Добавление багажа к доставке
@@ -201,15 +227,17 @@ func (h *Handler) UpdateBaggage(c *gin.Context) {
 // @Tags Багаж
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
+// @Param Authorization header string true "Токен авторизации"
 // @Param searchCode query string false "Код багажа" Format(email)
 // @Success 200 {object} model.BaggagesGetResponse  "Список багажей"
-// @Failure 400 {object} model.BaggagesGetResponse  "Некорректный запрос"
-// @Failure 500 {object} model.BaggagesGetResponse  "Внутренняя ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/delivery [post]
 func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
 	ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -222,15 +250,15 @@ func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
         return
     }
 
-    err = h.UseCase.AddBaggageToDelivery(uint(baggageID), uint(userID), 1)
+    err = h.UseCase.AddBaggageToDelivery(uint(baggageID), uint(userID))
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
 	baggages, err := h.UseCase.GetBaggages(searchCode, uint(userID))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -243,14 +271,16 @@ func (h *Handler) AddBaggageToDelivery(c *gin.Context) {
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
 // @Param searchCode query string false "Код багажа" Format(email)
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.BaggagesGetResponse "Список багажей"
-// @Failure 400 {object} model.BaggagesGetResponse "Некорректный запрос"
-// @Failure 500 {object} model.BaggagesGetResponse "Внутренняя ошибка сервера"
-// @Router /baggages/{baggage_id}/delivery [post]
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
+// @Router /baggage/{baggage_id}/delivery [delete]
 func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -265,13 +295,13 @@ func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
    
     err = h.UseCase.RemoveBaggageFromDelivery(uint(baggageID), uint(userID))  
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
     baggages, err := h.UseCase.GetBaggages(searchCode, uint(userID))
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
@@ -285,15 +315,17 @@ func (h *Handler) RemoveBaggageFromDelivery(c *gin.Context) {
 // @Produce json
 // @Param baggage_id path int true "ID багажа"
 // @Param image formData file true "Изображение багажа"
+// @Param Authorization header string true "Токен авторизации"
 // @Success 200 {object} model.Baggage "Информация о багаже с изображением"
-// @Success 200 {object} model.Baggage 
-// @Failure 400 {object} model.Baggage "Некорректный запрос"
-// @Failure 500 {object} model.Baggage "Внутренняя ошибка сервера"
+// @Failure 400 {object} model.ErrorResponse "Обработанная ошибка сервера"
+// @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
+// @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
+// @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Router /baggage/{baggage_id}/image [post]
 func (h* Handler) AddBaggageImage(c* gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)
@@ -312,32 +344,37 @@ func (h* Handler) AddBaggageImage(c* gin.Context) {
 
     file, err := image.Open()
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось открыть изображение"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "не удалось открыть изображение"})
         return
     }
     defer file.Close()
 
     imageBytes, err := io.ReadAll(file)
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "не удалось прочитать изображение в байтах"})
+        c.JSON(http.StatusBadRequest, gin.H{"error": "не удалось прочитать изображение в байтах"})
         return
     }
 
 	contentType := image.Header.Get("Content-Type")
+    
+    if middleware.ModeratorOnly(h.UseCase.Repository, c){
+        err = h.UseCase.AddBaggageImage(uint(baggageID), uint(userID),imageBytes, contentType)
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
 
-    err = h.UseCase.AddBaggageImage(uint(baggageID), uint(userID),imageBytes, contentType)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        baggage, err := h.UseCase.GetBaggageByID(uint(baggageID),uint(userID))
+        if err != nil {
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+            return
+        }
+
+        c.JSON(http.StatusOK, gin.H{"baggage": baggage})
+    } else {
+        c.JSON(http.StatusForbidden, gin.H{"error": "данный запрос доступен только модератору"})
         return
     }
-
-    baggage, err := h.UseCase.GetBaggageByID(uint(baggageID),uint(userID))
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"baggage": baggage})
 }
 
 
