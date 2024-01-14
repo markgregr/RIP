@@ -109,7 +109,7 @@ func (h *Handler) GetDeliveryByID(c *gin.Context) {
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Security ApiKeyAuth
-// @Router /delivery/{delivery_id}/delete [delete]
+// @Router /delivery/{delivery_id} [delete]
 func (h *Handler) DeleteDelivery(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
@@ -167,7 +167,7 @@ func (h *Handler) DeleteDelivery(c *gin.Context) {
 // @Failure 401 {object} model.ErrorResponse "Пользователь не авторизован"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Security ApiKeyAuth
-// @Router /delivery/{delivery_id}/update [put]
+// @Router /delivery/{delivery_id} [put]
 func (h *Handler) UpdateDeliveryFlightNumber(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {

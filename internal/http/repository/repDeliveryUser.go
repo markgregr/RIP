@@ -63,7 +63,7 @@ func (r *Repository) GetDeliveryByIDUser(deliveryID, userID uint) (model.Deliver
 func (r *Repository) DeleteDeliveryUser(deliveryID, userID uint) error {
     var delivery model.Delivery
     if err := r.db.Table("deliveries").
-        Where("delivery_id = ? AND user_id = ? AND delviery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
+        Where("delivery_id = ? AND user_id = ? AND delivery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
         First(&delivery).
         Error; err != nil {
         return errors.New("доставка не найдена или не принадлежит указанному пользователю или не находится в статусе черновик")
@@ -107,10 +107,11 @@ func (r *Repository) UpdateFlightNumberUser(deliveryID uint, userID uint, flight
 func (r *Repository) UpdateDeliveryStatusUser(deliveryID, userID uint) error {
     var delivery model.Delivery
     if err := r.db.Table("deliveries").
-        Where("delivery_id = ? AND user_id = ? AND delivery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
+        Joins("JOIN delivery_baggages ON delivery_baggages.delivery_id = deliveries.delivery_id").
+        Where("deliveries.delivery_id = ? AND deliveries.user_id = ? AND deliveries.delivery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
         First(&delivery).
         Error; err != nil {
-        return errors.New("доставка не найдена, или не принадлежит указанному пользователю, или не имеет статус черновик")
+        return errors.New("доставка не найдена, или не принадлежит указанному пользователю, или не имеет статус черновик или не имеет багажей")
     }
 
     delivery.DeliveryStatus = model.DELIVERY_STATUS_WORK

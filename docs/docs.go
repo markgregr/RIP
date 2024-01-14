@@ -54,9 +54,7 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/baggage/create": {
+            },
             "post": {
                 "security": [
                     {
@@ -165,9 +163,66 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/baggage/{baggage_id}/delete": {
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновляет информацию о багаже по его ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Багаж"
+                ],
+                "summary": "Обновление информации о багаже",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID багажа",
+                        "name": "baggage_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Информация о багаже",
+                        "schema": {
+                            "$ref": "#/definitions/model.Baggage"
+                        }
+                    },
+                    "400": {
+                        "description": "Обработанная ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "У пользователя нет прав для этого запроса",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -416,67 +471,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/baggage/{baggage_id}/update": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Обновляет информацию о багаже по его ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Багаж"
-                ],
-                "summary": "Обновление информации о багаже",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID багажа",
-                        "name": "baggage_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Информация о багаже",
-                        "schema": {
-                            "$ref": "#/definitions/model.Baggage"
-                        }
-                    },
-                    "400": {
-                        "description": "Обработанная ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Пользователь не авторизован",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "У пользователя нет прав для этого запроса",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/delivery": {
             "get": {
                 "security": [
@@ -600,9 +594,66 @@ const docTemplate = `{
                         }
                     }
                 }
-            }
-        },
-        "/delivery/{delivery_id}/delete": {
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновляет номер рейса для доставки по её идентификатору",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Доставка"
+                ],
+                "summary": "Обновление номера рейса доставки",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Идентификатор доставки",
+                        "name": "delivery_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Новый номер рейса",
+                        "name": "flightNumber",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.DeliveryUpdateFlightNumberRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Информация о доставке",
+                        "schema": {
+                            "$ref": "#/definitions/model.DeliveryGetResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Обработанная ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -765,67 +816,6 @@ const docTemplate = `{
                         "name": "delivery_id",
                         "in": "path",
                         "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Информация о доставке",
-                        "schema": {
-                            "$ref": "#/definitions/model.DeliveryGetResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Обработанная ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Пользователь не авторизован",
-                        "schema": {
-                            "$ref": "#/definitions/model.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/delivery/{delivery_id}/update": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Обновляет номер рейса для доставки по её идентификатору",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Доставка"
-                ],
-                "summary": "Обновление номера рейса доставки",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Идентификатор доставки",
-                        "name": "delivery_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Новый номер рейса",
-                        "name": "flightNumber",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.DeliveryUpdateFlightNumberRequest"
-                        }
                     }
                 ],
                 "responses": {
@@ -1223,7 +1213,7 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "2.0",
 	Host:             "http://localhost:8081",
 	BasePath:         "/",
 	Schemes:          []string{},

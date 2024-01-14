@@ -157,7 +157,7 @@ info:
   contact: {}
   description: API server for BagTracker application
   title: BagTracker RestAPI
-  version: "1.0"
+  version: "2.0"
 paths:
   /baggage:
     get:
@@ -186,34 +186,51 @@ paths:
       summary: Получение списка багажа
       tags:
       - Багаж
-  /baggage/{baggage_id}:
-    get:
-      description: Возвращает информацию о багаже по его ID
+    post:
+      consumes:
+      - application/json
+      description: Создает новый багаж с предоставленными данными
       parameters:
-      - description: ID багажа
-        in: path
-        name: baggage_id
+      - description: Код багажа
+        format: email
+        in: query
+        name: searchCode
+        type: string
+      - description: Пользовательский объект в формате JSON
+        in: body
+        name: baggage
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/model.BaggageRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: Информация о багаже
+          description: Список багажей
           schema:
-            $ref: '#/definitions/model.Baggage'
+            $ref: '#/definitions/model.BaggagesGetResponse'
         "400":
           description: Обработанная ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: У пользователя нет прав для этого запроса
           schema:
             $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Внутренняя ошибка сервера
           schema:
             type: string
-      summary: Получение багажа по ID
+      security:
+      - ApiKeyAuth: []
+      summary: Создание нового багажа
       tags:
       - Багаж
-  /baggage/{baggage_id}/delete:
+  /baggage/{baggage_id}:
     delete:
       description: Удаляет багаж по его ID
       parameters:
@@ -253,6 +270,70 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Удаление багажа
+      tags:
+      - Багаж
+    get:
+      description: Возвращает информацию о багаже по его ID
+      parameters:
+      - description: ID багажа
+        in: path
+        name: baggage_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о багаже
+          schema:
+            $ref: '#/definitions/model.Baggage'
+        "400":
+          description: Обработанная ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      summary: Получение багажа по ID
+      tags:
+      - Багаж
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о багаже по его ID
+      parameters:
+      - description: ID багажа
+        in: path
+        name: baggage_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о багаже
+          schema:
+            $ref: '#/definitions/model.Baggage'
+        "400":
+          description: Обработанная ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "403":
+          description: У пользователя нет прав для этого запроса
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление информации о багаже
       tags:
       - Багаж
   /baggage/{baggage_id}/delivery:
@@ -374,90 +455,6 @@ paths:
       summary: Добавление изображения к багажу
       tags:
       - Багаж
-  /baggage/{baggage_id}/update:
-    put:
-      consumes:
-      - application/json
-      description: Обновляет информацию о багаже по его ID
-      parameters:
-      - description: ID багажа
-        in: path
-        name: baggage_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Информация о багаже
-          schema:
-            $ref: '#/definitions/model.Baggage'
-        "400":
-          description: Обработанная ошибка сервера
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "401":
-          description: Пользователь не авторизован
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "403":
-          description: У пользователя нет прав для этого запроса
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: Обновление информации о багаже
-      tags:
-      - Багаж
-  /baggage/create:
-    post:
-      consumes:
-      - application/json
-      description: Создает новый багаж с предоставленными данными
-      parameters:
-      - description: Код багажа
-        format: email
-        in: query
-        name: searchCode
-        type: string
-      - description: Пользовательский объект в формате JSON
-        in: body
-        name: baggage
-        required: true
-        schema:
-          $ref: '#/definitions/model.BaggageRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Список багажей
-          schema:
-            $ref: '#/definitions/model.BaggagesGetResponse'
-        "400":
-          description: Обработанная ошибка сервера
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "401":
-          description: Пользователь не авторизован
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "403":
-          description: У пользователя нет прав для этого запроса
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: Создание нового багажа
-      tags:
-      - Багаж
   /delivery:
     get:
       description: Возвращает список всех не удаленных доставок
@@ -507,39 +504,6 @@ paths:
       tags:
       - Доставка
   /delivery/{delivery_id}:
-    get:
-      description: Возвращает информацию о доставке по её идентификатору
-      parameters:
-      - description: Идентификатор доставки
-        in: path
-        name: delivery_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Информация о доставке
-          schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
-        "400":
-          description: Обработанная ошибка сервера
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "401":
-          description: Пользователь не авторизован
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: Получение доставки по идентификатору
-      tags:
-      - Доставка
-  /delivery/{delivery_id}/delete:
     delete:
       description: Удаляет доставку по её идентификатору
       parameters:
@@ -590,6 +554,76 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Удаление доставки
+      tags:
+      - Доставка
+    get:
+      description: Возвращает информацию о доставке по её идентификатору
+      parameters:
+      - description: Идентификатор доставки
+        in: path
+        name: delivery_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о доставке
+          schema:
+            $ref: '#/definitions/model.DeliveryGetResponse'
+        "400":
+          description: Обработанная ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Получение доставки по идентификатору
+      tags:
+      - Доставка
+    put:
+      description: Обновляет номер рейса для доставки по её идентификатору
+      parameters:
+      - description: Идентификатор доставки
+        in: path
+        name: delivery_id
+        required: true
+        type: integer
+      - description: Новый номер рейса
+        in: body
+        name: flightNumber
+        required: true
+        schema:
+          $ref: '#/definitions/model.DeliveryUpdateFlightNumberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Информация о доставке
+          schema:
+            $ref: '#/definitions/model.DeliveryGetResponse'
+        "400":
+          description: Обработанная ошибка сервера
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/model.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            type: string
+      security:
+      - ApiKeyAuth: []
+      summary: Обновление номера рейса доставки
       tags:
       - Доставка
   /delivery/{delivery_id}/status/moderator:
@@ -662,45 +696,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Обновление статуса доставки для пользователя
-      tags:
-      - Доставка
-  /delivery/{delivery_id}/update:
-    put:
-      description: Обновляет номер рейса для доставки по её идентификатору
-      parameters:
-      - description: Идентификатор доставки
-        in: path
-        name: delivery_id
-        required: true
-        type: integer
-      - description: Новый номер рейса
-        in: body
-        name: flightNumber
-        required: true
-        schema:
-          $ref: '#/definitions/model.DeliveryUpdateFlightNumberRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Информация о доставке
-          schema:
-            $ref: '#/definitions/model.DeliveryGetResponse'
-        "400":
-          description: Обработанная ошибка сервера
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "401":
-          description: Пользователь не авторизован
-          schema:
-            $ref: '#/definitions/model.ErrorResponse'
-        "500":
-          description: Внутренняя ошибка сервера
-          schema:
-            type: string
-      security:
-      - ApiKeyAuth: []
-      summary: Обновление номера рейса доставки
       tags:
       - Доставка
   /user/login:

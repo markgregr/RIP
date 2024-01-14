@@ -11,7 +11,7 @@ import (
 )
 
 // @title BagTracker RestAPI
-// @version 1.0
+// @version 2.0
 // @description API server for BagTracker application
 
 // @host http://localhost:8081
@@ -29,9 +29,9 @@ func (app *Application) Run() {
     {   
         BaggageGroup.GET("/", middleware.Guest(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.GetBaggages)
         BaggageGroup.GET("/:baggage_id", middleware.Guest(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.GetBaggageByID)
-        BaggageGroup.DELETE("/:baggage_id/delete", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.DeleteBaggage)
-        BaggageGroup.POST("/create", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.CreateBaggage)
-        BaggageGroup.PUT("/:baggage_id/update", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.UpdateBaggage)
+        BaggageGroup.DELETE("/:baggage_id", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.DeleteBaggage)
+        BaggageGroup.POST("/", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.CreateBaggage)
+        BaggageGroup.PUT("/:baggage_id", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.UpdateBaggage)
         BaggageGroup.POST("/:baggage_id/delivery", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.AddBaggageToDelivery)
         BaggageGroup.DELETE("/:baggage_id/delivery", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.RemoveBaggageFromDelivery)
         BaggageGroup.POST("/:baggage_id/image", middleware.Authenticate(app.Repository.GetRedisClient(), []byte("AccessSecretKey"), app.Repository), app.Handler.AddBaggageImage)
@@ -43,8 +43,8 @@ func (app *Application) Run() {
     {
         DeliveryGroup.GET("/", app.Handler.GetDeliveries)
         DeliveryGroup.GET("/:delivery_id", app.Handler.GetDeliveryByID)
-        DeliveryGroup.DELETE("/:delivery_id/delete", app.Handler.DeleteDelivery)
-        DeliveryGroup.PUT("/:delivery_id/update", app.Handler.UpdateDeliveryFlightNumber)
+        DeliveryGroup.DELETE("/:delivery_id", app.Handler.DeleteDelivery)
+        DeliveryGroup.PUT("/:delivery_id", app.Handler.UpdateDeliveryFlightNumber)
         DeliveryGroup.PUT("/:delivery_id/status/user", app.Handler.UpdateDeliveryStatusUser)  // Новый маршрут для обновления статуса доставки пользователем
         DeliveryGroup.PUT("/:delivery_id/status/moderator", app.Handler.UpdateDeliveryStatusModerator)  // Новый маршрут для обновления статуса доставки модератором
     }

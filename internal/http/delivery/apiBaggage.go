@@ -82,7 +82,7 @@ func (h *Handler) GetBaggageByID(c *gin.Context) {
 // @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Security ApiKeyAuth
-// @Router /baggage/create [post]
+// @Router /baggage [post]
 func (h *Handler) CreateBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
@@ -132,7 +132,7 @@ func (h *Handler) CreateBaggage(c *gin.Context) {
 // @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Security ApiKeyAuth
-// @Router /baggage/{baggage_id}/delete [delete]
+// @Router /baggage/{baggage_id} [delete]
 func (h *Handler) DeleteBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
@@ -181,7 +181,7 @@ func (h *Handler) DeleteBaggage(c *gin.Context) {
 // @Failure 403 {object} model.ErrorResponse "У пользователя нет прав для этого запроса"
 // @Failure 500 {string} string "Внутренняя ошибка сервера"
 // @Security ApiKeyAuth
-// @Router /baggage/{baggage_id}/update [put]
+// @Router /baggage/{baggage_id} [put]
 func (h *Handler) UpdateBaggage(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
