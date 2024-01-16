@@ -69,10 +69,10 @@ func (uc *UseCase) UpdateFlightNumberUser(deliveryID, userID uint, flightNumber 
 	if userID <= 0 {
 		return errors.New("недопустимый ИД пользователя")
 	}
-	if len(flightNumber.FlightNumber) !=6 {
-		return errors.New("недопустимый номер рейса")
+	if len(flightNumber.FlightNumber) <0 {
+		return errors.New("Вы ничего не ввели")
 	}
-
+	flightNumber.FlightNumber = strings.ToUpper(flightNumber.FlightNumber)
 	err := uc.Repository.UpdateFlightNumberUser(deliveryID, userID, flightNumber)
 	if err != nil {
 		return err

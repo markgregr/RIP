@@ -22,7 +22,7 @@ import (
 func (h *Handler) GetBaggages(c *gin.Context) {
     ctxUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте пп"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := ctxUserID.(uint)

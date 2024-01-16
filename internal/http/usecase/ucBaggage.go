@@ -19,7 +19,7 @@ type BaggageUseCase interface {
 }
 
 func (uc *UseCase) GetBaggages(searchCode string, userID uint) (model.BaggagesGetResponse, error) {
-	if userID <= 0 {
+	if userID < 0 {
 		return model.BaggagesGetResponse{}, errors.New("недопустимый ИД пользователя")
 	}
 
@@ -34,7 +34,7 @@ func (uc *UseCase) GetBaggages(searchCode string, userID uint) (model.BaggagesGe
 }
 
 func (uc *UseCase) GetBaggageByID(baggageID, userID uint) (model.Baggage, error) {
-	if baggageID <= 0 {
+	if baggageID < 0 {
 		return model.Baggage{}, errors.New("недопустимый ИД багажа")
 	}
 	if userID <= 0 {
@@ -50,7 +50,7 @@ func (uc *UseCase) GetBaggageByID(baggageID, userID uint) (model.Baggage, error)
 }
 
 func (uc *UseCase) CreateBaggage(userID uint, requestBaggage model.BaggageRequest) error {
-	if userID <= 0 {
+	if userID < 0 {
 		return errors.New("недопустимый ИД пользователя")
 	}
 	if requestBaggage.BaggageCode == "" {
@@ -95,10 +95,10 @@ func (uc *UseCase) CreateBaggage(userID uint, requestBaggage model.BaggageReques
 }
 
 func (uc *UseCase) DeleteBaggage(baggageID, userID uint) error {
-	if baggageID <= 0 {
+	if baggageID < 0 {
 		return errors.New("недопустимый ИД багажа")
 	}
-	if userID <= 0 {
+	if userID < 0 {
 		return errors.New("недопустимый ИД пользователя")
 	}
 
@@ -116,10 +116,10 @@ func (uc *UseCase) DeleteBaggage(baggageID, userID uint) error {
 }
 
 func (uc *UseCase) UpdateBaggage(baggageID, userID uint, requestBaggage model.BaggageRequest) error {
-	if baggageID <= 0 {
+	if baggageID < 0 {
 		return errors.New("недопустимый ИД багажа")
 	}
-	if userID <= 0 {
+	if userID < 0 {
 		return errors.New("недопустимый ИД пользователя")
 	}
 
@@ -142,10 +142,10 @@ func (uc *UseCase) UpdateBaggage(baggageID, userID uint, requestBaggage model.Ba
 }
 
 func (uc *UseCase) AddBaggageToDelivery(baggageID, userID uint) error {
-	if baggageID <= 0 {
+	if baggageID < 0 {
 		return errors.New("недопустимый ИД багажа")
 	}
-	if userID <= 0 {
+	if userID < 0 {
 		return errors.New("недопустимый ИД пользователя")
 	}
 
@@ -158,10 +158,10 @@ func (uc *UseCase) AddBaggageToDelivery(baggageID, userID uint) error {
 }
 
 func (uc *UseCase) RemoveBaggageFromDelivery(baggageID, userID uint) error {
-	if baggageID <= 0 {
+	if baggageID < 0 {
 		return errors.New("недопустимый ИД багажа")
 	}
-	if userID <= 0 {
+	if userID < 0 {
 		return errors.New("недопустимый ИД пользователя")
 	}
 
@@ -174,10 +174,10 @@ func (uc *UseCase) RemoveBaggageFromDelivery(baggageID, userID uint) error {
 }
 
 func (uc *UseCase) AddBaggageImage(baggageID, userID uint, imageBytes []byte, ContentType string) error {
-	if baggageID <= 0 {
+	if baggageID < 0 {
 		return errors.New("недопустимый ИД багажа")
 	}
-	if userID <= 0 {
+	if userID < 0 {
 		return errors.New("недопустимый ИД пользователя")
 	}
 	if imageBytes == nil {

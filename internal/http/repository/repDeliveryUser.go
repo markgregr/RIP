@@ -66,21 +66,13 @@ func (r *Repository) DeleteDeliveryUser(deliveryID, userID uint) error {
         Where("delivery_id = ? AND user_id = ? AND delivery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
         First(&delivery).
         Error; err != nil {
-        return errors.New("доставка не найдена или не принадлежит указанному пользователю или не находится в статусе черновик")
-    }
-
-    tx := r.db.Begin()
-    if err := tx.Where("delivery_id = ?", deliveryID).Delete(&model.DeliveryBaggage{}).Error; 
-    err != nil {
-        tx.Rollback()
-        return errors.New("ошибка удаления связей из таблицы-множества")
+        return errors.New("доставка не найдена, или не принадлежит указанному пользователю, или не находится в статусе черновик")
     }
 
     err := r.db.Model(&model.Delivery{}).Where("delivery_id = ?", deliveryID).Update("delivery_status", model.DELIVERY_STATUS_DELETED).Error
     if err != nil {
         return errors.New("ошибка обновления статуса на удален")
     }
-     tx.Commit()
      
     return nil
 }
@@ -91,7 +83,7 @@ func (r *Repository) UpdateFlightNumberUser(deliveryID uint, userID uint, flight
         Where("delivery_id = ? AND user_id = ? AND delivery_status = ?", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
         First(&delivery).
         Error; err != nil {
-        return errors.New("доставка не найдена или не принадлежит указанному пользователю")
+        return errors.New("доставка не найдена, или не принадлежит указанному пользователю, или не находится в статусе черновик")
     }
 
     if err := r.db.Table("deliveries").
@@ -108,10 +100,10 @@ func (r *Repository) UpdateDeliveryStatusUser(deliveryID, userID uint) error {
     var delivery model.Delivery
     if err := r.db.Table("deliveries").
         Joins("JOIN delivery_baggages ON delivery_baggages.delivery_id = deliveries.delivery_id").
-        Where("deliveries.delivery_id = ? AND deliveries.user_id = ? AND deliveries.delivery_status = ? AND deliveries.Flight_number != ", deliveryID, userID, model.DELIVERY_STATUS_DRAFT, nil).
+        Where("deliveries.delivery_id = ? AND deliveries.user_id = ? AND deliveries.delivery_status = ? AND deliveries.flight_number IS NOT NULL", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
         First(&delivery).
         Error; err != nil {
-        return errors.New("доставка не найдена, или не принадлежит указанному пользователю, или не имеет статус черновик или не имеет багажей")
+        return errors.New("доставка не найдена, или не принадлежит указанному пользователю, или не имеет статус черновик, или не имеет номера рейса")
     }
 
     delivery.DeliveryStatus = model.DELIVERY_STATUS_WORK

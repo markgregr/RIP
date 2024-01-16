@@ -53,7 +53,7 @@ func (h *Handler) Login(c *gin.Context) {
 
 	loginResponse, err := h.UseCase.LoginUser(user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"access_token": loginResponse.AccessToken, "full_name":loginResponse.FullName, "role":loginResponse.Role})
@@ -73,14 +73,14 @@ func (h *Handler) Login(c *gin.Context) {
 func (h *Handler) Logout(c *gin.Context) {
 	cUserID, exists := c.Get("userID")
 	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Идентификатор пользователя отсутствует в контексте"})
 		return
 	}
 	userID := cUserID.(uint)
 	
 	err := h.UseCase.LogoutUser(uint(userID))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Пользователь успешно вышел из системы"})

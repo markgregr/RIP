@@ -319,7 +319,7 @@ func (h *Handler) UpdateDeliveryStatusModerator(c *gin.Context) {
 
         delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), userID)
         if err != nil {
-            c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+            c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
         }
 
