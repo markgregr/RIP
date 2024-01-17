@@ -5,24 +5,20 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/markgregr/RIP/docs"
 	"github.com/markgregr/RIP/internal/pkg/middleware"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
-// @title BagTracker RestAPI
-// @version 2.0
-// @description API server for BagTracker application
-
-// @host http://localhost:8081
-// @BasePath /
-
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
-// Run запускает приложение.
 func (app *Application) Run() {
     r := gin.Default()  
+    // Это нужно для автоматического создания папки "docs" в вашем проекте
+	docs.SwaggerInfo.Title = "BagTracker RestAPI"
+	docs.SwaggerInfo.Description = "API server for BagTracker application"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8081"
+	docs.SwaggerInfo.BasePath = "/"
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
     // Группа запросов для багажа
     BaggageGroup := r.Group("/baggage")

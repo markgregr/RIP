@@ -22,7 +22,7 @@ definitions:
       pasport_details:
         example: "123456789"
         type: string
-      photo:
+      photo_url:
         example: http://example.com/baggage.jpg
         type: string
       size:
@@ -103,6 +103,8 @@ definitions:
         type: string
       full_name:
         type: string
+      moderator_name:
+        type: string
     type: object
   model.DeliveryUpdateFlightNumberRequest:
     properties:
@@ -155,9 +157,9 @@ definitions:
 host: http://localhost:8081
 info:
   contact: {}
-  description: API server for BagTracker application
+  description: API server for Space application
   title: BagTracker RestAPI
-  version: "2.0"
+  version: "1.0"
 paths:
   /baggage:
     get:

@@ -7,6 +7,17 @@ import (
 	"github.com/markgregr/RIP/internal/app"
 )
 
+// @title BagTracker RestAPI
+// @version 1.0
+// @description API server for Space application
+
+// @host http://localhost:8081
+// @BasePath /
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// Run запускает приложение.
 func main() {
 	log.Println("Application start!")
 	// Создаем контекст

@@ -1,10 +1,10 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "API server for BagTracker application",
+        "description": "API server for Space application",
         "title": "BagTracker RestAPI",
         "contact": {},
-        "version": "2.0"
+        "version": "1.0"
     },
     "host": "http://localhost:8081",
     "basePath": "/",
@@ -1001,7 +1001,7 @@
                     "type": "string",
                     "example": "123456789"
                 },
-                "photo": {
+                "photo_url": {
                     "type": "string",
                     "example": "http://example.com/baggage.jpg"
                 },
@@ -1117,6 +1117,9 @@
                     "type": "string"
                 },
                 "full_name": {
+                    "type": "string"
+                },
+                "moderator_name": {
                     "type": "string"
                 }
             }

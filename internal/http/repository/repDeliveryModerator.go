@@ -15,9 +15,10 @@ type DeliveryModeratorRepository interface{
 
 func (r *Repository) GetDeliveriesModerator(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string) ([]model.DeliveryRequest, error) {
     query := r.db.Table("deliveries").
-        Select("DISTINCT deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
-        Joins("JOIN users ON users.user_id = deliveries.user_id").
-        Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.delivery_status != ? AND deliveries.delivery_status !=", deliveryStatus, searchFlightNumber, model.DELIVERY_STATUS_DELETED, model.DELIVERY_STATUS_DRAFT)
+        Select("deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, creator.full_name, moderator.full_name as moderator_name").
+        Joins("JOIN users creator ON creator.user_id = deliveries.user_id").
+        Joins("LEFT JOIN users moderator ON moderator.user_id = deliveries.moderator_id").
+        Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.delivery_status != ? AND deliveries.delivery_status != ?", deliveryStatus, searchFlightNumber, model.DELIVERY_STATUS_DELETED, model.DELIVERY_STATUS_DRAFT)
     
     if startFormationDate != "" && endFormationDate != "" {
         query = query.Where("deliveries.formation_date BETWEEN ? AND ?", startFormationDate, endFormationDate)
@@ -39,7 +40,7 @@ func (r *Repository) GetDeliveryByIDModerator(deliveryID uint) (model.DeliveryGe
         Table("deliveries").
         Select("deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
-        Where("deliveries.delivery_status != ? AND deliveries.delivery_status != ? AND deliveries.delivery_id = ?", model.DELIVERY_STATUS_DELETED, model.DELIVERY_STATUS_DRAFT, deliveryID).
+        Where("deliveries.delivery_status != ? AND deliveries.delivery_id = ?", model.DELIVERY_STATUS_DELETED, deliveryID).
         First(&delivery).Error; err != nil {
         return model.DeliveryGetResponse{}, errors.New("ошибка получения доставки по ИД")
     }

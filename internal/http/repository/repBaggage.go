@@ -57,7 +57,7 @@ func (r *Repository) GetBaggageByID(baggageID, userID uint) (model.Baggage, erro
 }
 
 func (r *Repository) CreateBaggage(userID uint, baggage model.Baggage) error {
-	if err := r.db.Create(baggage).Error; err != nil {
+	if err := r.db.Create(&baggage).Error; err != nil {
 		return errors.New("ошибка создания багажа")
 	}
 
@@ -159,7 +159,7 @@ func (r *Repository) RemoveBaggageFromDelivery(baggageID, userID uint) error {
 }
 
 func (r *Repository) AddBaggageImage(baggageID, userID uint, imageURL string) error {
-    err := r.db.Table("baggages").Where("baggage_id = ?", baggageID).Update("photo", imageURL).Error
+    err := r.db.Table("baggages").Where("baggage_id = ?", baggageID).Update("photo_url", imageURL).Error
     if err != nil {
         return errors.New("ошибка обновления url изображения в БД")
     }

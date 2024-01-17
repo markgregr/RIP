@@ -1007,7 +1007,7 @@ const docTemplate = `{
                     "type": "string",
                     "example": "123456789"
                 },
-                "photo": {
+                "photo_url": {
                     "type": "string",
                     "example": "http://example.com/baggage.jpg"
                 },
@@ -1124,6 +1124,9 @@ const docTemplate = `{
                 },
                 "full_name": {
                     "type": "string"
+                },
+                "moderator_name": {
+                    "type": "string"
                 }
             }
         },
@@ -1213,12 +1216,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "2.0",
+	Version:          "1.0",
 	Host:             "http://localhost:8081",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "BagTracker RestAPI",
-	Description:      "API server for BagTracker application",
+	Description:      "API server for Space application",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

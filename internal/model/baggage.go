@@ -12,7 +12,7 @@ type Baggage struct {
 	OwnerName      string  `json:"owner_name" example:"John Doe"`
 	PasportDetails string  `json:"pasport_details" example:"123456789"`
 	Airline        string  `json:"airline" example:"AirlineX"`
-	PhotoURL       string  `json:"photo" example:"http://example.com/baggage.jpg"`
+	PhotoURL       string  `json:"photo_url" example:"http://example.com/baggage.jpg"`
 }
 
 // BaggageRequest представляет запрос на создание багажа.
