@@ -23,12 +23,13 @@ func (r *Repository) GetDeliveriesModerator(searchFlightNumber, startFormationDa
     if startFormationDate != "" && endFormationDate != "" {
         query = query.Where("deliveries.formation_date BETWEEN ? AND ?", startFormationDate, endFormationDate)
     }
+// Сортировка по дате формирования в порядке убывания
+    query = query.Order("deliveries.formation_date DESC")
 
     var deliveries []model.DeliveryRequest
     if err := query.Find(&deliveries).Error; err != nil {
-        return nil, errors.New("ошибка получения доставок")
+    return nil, errors.New("ошибка получения доставок")
     }
-
 
     return deliveries, nil
 }
@@ -71,7 +72,7 @@ func (r *Repository) UpdateDeliveryStatusModerator(deliveryID, moderatorID uint,
     delivery.DeliveryStatus = deliveryStatus.DeliveryStatus
     delivery.ModeratorID = &moderatorID
     currentTime := time.Now()
-	delivery.FormationDate = &currentTime
+	delivery.CompletionDate = &currentTime
 
     if err := r.db.Save(&delivery).Error; err != nil {
         return errors.New("ошибка обновления статуса доставки в БД")

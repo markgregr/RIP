@@ -317,7 +317,7 @@ func (h *Handler) UpdateDeliveryStatusModerator(c *gin.Context) {
             return
         }
 
-        delivery, err := h.UseCase.GetDeliveryByIDUser(uint(deliveryID), userID)
+        delivery, err := h.UseCase.GetDeliveryByIDModerator(uint(deliveryID))
         if err != nil {
             c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return

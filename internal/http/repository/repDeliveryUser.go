@@ -17,13 +17,15 @@ type DeliveryUserRepository interface{
 
 func (r *Repository) GetDeliveriesUser(searchFlightNumber, startFormationDate, endFormationDate, deliveryStatus string, userID uint) ([]model.DeliveryRequest, error) {
     query := r.db.Table("deliveries").
-        Select("DISTINCT deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
+        Select("deliveries.delivery_id, deliveries.flight_number, deliveries.creation_date, deliveries.formation_date, deliveries.completion_date, deliveries.delivery_status, users.full_name").
         Joins("JOIN users ON users.user_id = deliveries.user_id").
-        Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.user_id = ? AND deliveries.delivery_status != ?", deliveryStatus, searchFlightNumber, userID, model.DELIVERY_STATUS_DELETED)
+        Where("deliveries.delivery_status LIKE ? AND deliveries.flight_number LIKE ? AND deliveries.user_id = ? AND deliveries.delivery_status != ? AND deliveries.delivery_status != ?", deliveryStatus, searchFlightNumber, userID, model.DELIVERY_STATUS_DELETED, model.DELIVERY_STATUS_DRAFT)
     
     if startFormationDate != "" && endFormationDate != "" {
         query = query.Where("deliveries.formation_date BETWEEN ? AND ?", startFormationDate, endFormationDate)
     }
+    // Сортировка по дате формирования в порядке убывания
+   query = query.Order("deliveries.formation_date DESC")
 
     var deliveries []model.DeliveryRequest
     if err := query.Find(&deliveries).Error; err != nil {
