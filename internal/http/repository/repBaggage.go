@@ -19,14 +19,11 @@ type BaggageRepository interface {
 }
 
 func (r *Repository) GetBaggages(searchCode string, userID uint) (model.BaggagesGetResponse, error) {
-    var deliveryID uint
-    if err := r.db.
-        Table("deliveries").
-        Select("deliveries.delivery_id").
+    var delivery model.Delivery
+    if err := r.db.Table("deliveries").
         Where("user_id = ? AND delivery_status = ?", userID, model.DELIVERY_STATUS_DRAFT).
-        Take(&deliveryID).Error; 
-        err != nil {
-    }
+        Take(&delivery).Error; 
+        err != nil {}
 
     var baggages []model.Baggage
     if err := r.db.Table("baggages").
@@ -37,7 +34,7 @@ func (r *Repository) GetBaggages(searchCode string, userID uint) (model.Baggages
 
     baggageResponse := model.BaggagesGetResponse{
         Baggages:   baggages,
-        DeliveryID: deliveryID,
+        DeliveryID: delivery.DeliveryID,
     }
 
     return baggageResponse, nil
@@ -126,7 +123,7 @@ func (r *Repository) AddBaggageToDelivery(baggageID, userID uint) error {
     }
 
     deliveryBaggage := model.DeliveryBaggage{
-        BaggageID:  baggageID,
+        BaggageID:  baggage.BaggageID,
         DeliveryID: delivery.DeliveryID,
     }
 

@@ -101,7 +101,6 @@ func (r *Repository) UpdateFlightNumberUser(deliveryID uint, userID uint, flight
 func (r *Repository) UpdateDeliveryStatusUser(deliveryID, userID uint) error {
     var delivery model.Delivery
     if err := r.db.Table("deliveries").
-        Joins("JOIN delivery_baggages ON delivery_baggages.delivery_id = deliveries.delivery_id").
         Where("deliveries.delivery_id = ? AND deliveries.user_id = ? AND deliveries.delivery_status = ? AND deliveries.flight_number IS NOT NULL", deliveryID, userID, model.DELIVERY_STATUS_DRAFT).
         First(&delivery).
         Error; err != nil {

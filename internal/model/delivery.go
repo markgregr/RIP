@@ -21,7 +21,7 @@ type DeliveryRequest struct {
 	CompletionDate *time.Time `json:"completion_date"`
 	DeliveryStatus string    `json:"delivery_status"`
 	FullName 	   string 	 `json:"full_name"`
-	ModeratorName string 	 `json:"moderator_name"`
+	ModeratorName  string 	 `json:"moderator_name"`
 }
 
 type DeliveryGetResponse struct {
